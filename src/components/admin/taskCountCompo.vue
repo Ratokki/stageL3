@@ -1,8 +1,12 @@
 <template>
-  <div
+<v-row>
+<v-col cols="12" sm="5">
+<div
     ref="echartPie"
-    style="width: 500%; height: 200px; margin-top: -20px; margin-left: -135px"
+    style="width: 500%; height: 200px; margin-top: -40px; margin-left: -150px;"
   ></div>
+</v-col>
+ </v-row> 
 </template>
 
 <script>

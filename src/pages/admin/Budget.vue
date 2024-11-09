@@ -15,7 +15,7 @@
                   <p>Budget</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40"> </v-avatar>
+                  <AdminAvatar/>
                 </v-col>
               </v-row>
             </v-container>
@@ -687,10 +687,12 @@
 <script>
 
 import AdminNav from "../../components/admin/AdminNav.vue";
+import AdminAvatar from "../../components/admin/AdminAvatar.vue";
 
 export default {
   components: {
     AdminNav,
+    AdminAvatar,
   },
   data() {
     return {

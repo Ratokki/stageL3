@@ -1,26 +1,17 @@
 <template>
   <v-app :style="{ backgroundColor: '#F4F5FA', fontFamily: 'ABeeZee' }">
-    <AdminNav/>
+    <AdminNav />
     <v-main>
       <v-container fluid class="px-6 mt-n2">
         <v-col cols="12">
-          <v-card
-            height="58"
-            elevation="0"
-            style="background-color: white; border-radius: 10px"
-          >
+          <v-card height="58" elevation="0" style="background-color: white; border-radius: 10px">
             <v-container style="margin-top: -6px">
               <v-row align="center">
                 <v-col cols="10">
                   <p class="monTitle">Tâches du projet</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                  <AdminAvatar />
                 </v-col>
               </v-row>
             </v-container>
@@ -28,16 +19,10 @@
         </v-col>
       </v-container>
 
+      <!-- Contenu des projets -->
       <v-container fluid class="px-6 mt-n2" style="margin-top: -8px">
         <v-col cols="12" style="margin-top: -8px">
-          <v-card
-            elevation="0"
-            style="
-              background-color: white;
-              border-radius: 10px;
-              margin-top: -25px;
-            "
-          >
+          <v-card elevation="0" style="background-color: white; border-radius: 10px; margin-top: -25px">
             <v-container style="margin-top: -6px">
               <v-row align="center">
                 <v-sheet class="d-flex justify-space-between align-center pa-4">
@@ -52,6 +37,7 @@
                   ></v-select>
                 </v-sheet>
 
+                <!-- Recherche et Tri -->
                 <v-spacer></v-spacer>
                 <div>
                   <v-text-field
@@ -68,46 +54,30 @@
                     width="300px"
                   ></v-text-field>
                 </div>
-                <div style="margin-left: 18px">
-                  <v-autocomplete
-                    color="success"
-                    class="mx-auto"
-                    density="comfortable"
-                    rounded
-                    chips
-                    clearable
-                    label="Trier par"
-                    :items="['Date', 'Statut', 'Nom']"
-                    variant="underlined"
-                    width="195px"
-                    style="margin-left: -40px; max-width: 250px"
-                  ></v-autocomplete>
-                </div>
+                
               </v-row>
+
+              <!-- Liste des projets -->
               <v-row style="margin-top: -30px">
                 <v-col cols="12">
-                  <v-card
-                    v-for="project in filteredAndSearchedProjects"
-                    :key="project.idproject"
-                    class="mb-4"
-                  >
+                  <v-card v-for="project in filteredAndSearchedProjects" :key="project.id_projet" class="mb-4">
                     <v-container>
                       <v-row align="center">
                         <v-col cols="12" sm="8" style="margin-left: -15px">
-                          <v-card-title>Titre : {{ project.name }}</v-card-title>
+                          <v-card-title>Titre : {{ project.titre }}</v-card-title>
                         </v-col>
                         <v-col cols="12" sm="3" style="margin-left: -15px">
-                          <v-card-subtitle>Débuté le : {{ project.dateDebut }}</v-card-subtitle>
+                          <v-card-subtitle>Débuté le : {{ project.date_debut }}</v-card-subtitle>
                         </v-col>
                         <v-col cols="12" sm="1" style="margin-left: -5px">
-                          <v-chip :color="getStatusColor(project.status)" small dark class="justify-center">
-                            {{ project.status }}
+                          <v-chip :color="getStatusColor(project.statut)" small dark class="justify-center">
+                            {{ project.statut }}
                           </v-chip>
                         </v-col>
                       </v-row>
                     </v-container>
 
-                    <v-card-subtitle>Nombre de tâches : {{ getTaskCount(project.idproject) }}</v-card-subtitle>
+                    <v-card-subtitle>Nombre de tâches : {{ getTaskCount(project.id_projet) }}</v-card-subtitle>
                     <v-row align="center">
                       <v-col cols="11">
                         <v-card-actions>
@@ -115,7 +85,7 @@
                             class="text-none"
                             color="green"
                             rounded="xl"
-                            @click="project.showTasks = !project.showTasks"
+                            @click="loadTasks(project)"
                             variant="text"
                           >
                             Voir tâche
@@ -131,39 +101,9 @@
                           <v-tooltip activator="parent" location="bottom" class="custom-tooltip">Voir détails</v-tooltip>
                         </v-btn>
                       </v-col>
-
-                      <!-- Détails du projet sélectionné dans un modal -->
-      <v-dialog v-model="dialog" max-width="600px">
-        <v-card>
-          <v-card-title>Détails du projet : {{ selectedProject?.name }}</v-card-title>
-          <v-card-subtitle>Statut : {{ selectedProject?.status }}</v-card-subtitle>
-          <v-card-subtitle>Date de début : {{ selectedProject?.dateDebut }}</v-card-subtitle>
-          <v-divider></v-divider>
-          <v-card-text>
-            <h4>Tâches associées :</h4>
-            <v-list>
-              <v-list-item-group>
-                <v-list-item
-                  v-for="task in getTasks(selectedProject?.idproject)"
-                  :key="task.id"
-                >
-                  <v-list-item-content>
-                    <v-list-item-title>{{ task.name }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ task.descr }} - Statut : {{ task.status }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text @click="dialog = false">Fermer</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
                     </v-row>
 
+                    <!-- Tâches associées -->
                     <v-expand-transition>
                       <div v-show="project.showTasks">
                         <v-divider></v-divider>
@@ -171,24 +111,24 @@
                           <v-row>
                             <v-col cols="12" style="margin-top: 10px;">
                               <span style="margin-left: 15px; font-size: 20px;">Tâches en cours</span>
-                              <template v-if="getTasksByStatus(project.idproject, 'En cours').length">
+                              <template v-if="getTasksByStatus(project.id_projet, 'En cours').length">
                                 <v-row style="margin-top: 10px;">
                                   <v-col
-                                    v-for="task in sortedTasks(getTasksByStatus(project.idproject, 'En cours'))"
+                                    v-for="task in sortedTasks(getTasksByStatus(project.id_projet, 'En cours'))"
                                     :key="task.id"
                                     cols="12"
                                     sm="4"
                                   >
                                     <v-card elevation="3" style="border-radius: 15px">
                                       <br>
-                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.name }}</span>
+                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.titre }}</span>
                                       <v-card-subtitle class="task-description" style="margin-top: 10px;">
                                         Description : <br />
                                         {{ task.descr }}
                                       </v-card-subtitle>
                                       <v-card-subtitle style="margin-top: 8px">Débuté le : {{ task.dateDebut }}</v-card-subtitle>
-                                      <v-chip :color="getStatusColor(task.status)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
-                                        {{ task.status }}
+                                      <v-chip :color="getStatusColor(task.statut)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
+                                        {{ task.statut }}
                                       </v-chip>
                                       <br><br>
                                     </v-card>
@@ -203,24 +143,24 @@
 
                             <v-col cols="12" style="margin-top: 10px;">
                               <span style="margin-left: 15px; font-size: 20px;">Tâches à faire</span>
-                              <template v-if="getTasksByStatus(project.idproject, 'À faire').length">
+                              <template v-if="getTasksByStatus(project.id_projet, 'À faire').length">
                                 <v-row style="margin-top: 10px;">
                                   <v-col
-                                    v-for="task in sortedTasks(getTasksByStatus(project.idproject, 'À faire'))"
+                                    v-for="task in sortedTasks(getTasksByStatus(project.id_projet, 'À faire'))"
                                     :key="task.id"
                                     cols="12"
                                     sm="4"
                                   >
                                     <v-card elevation="3" style="border-radius: 15px">
                                       <br>
-                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.name }}</span>
+                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.titre }}</span>
                                       <v-card-subtitle class="task-description" style="margin-top: 10px;">
                                         Description : <br />
                                         {{ task.descr }}
                                       </v-card-subtitle>
                                       <v-card-subtitle style="margin-top: 8px">Débuté le : {{ task.dateDebut }}</v-card-subtitle>
-                                      <v-chip :color="getStatusColor(task.status)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
-                                        {{ task.status }}
+                                      <v-chip :color="getStatusColor(task.statut)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
+                                        {{ task.statut }}
                                       </v-chip>
                                       <br><br>
                                     </v-card>
@@ -235,24 +175,24 @@
 
                             <v-col cols="12" style="margin-top: 10px;">
                               <span style="margin-left: 15px; font-size: 20px;">Tâches effectuées</span>
-                              <template v-if="getTasksByStatus(project.idproject, 'Terminé').length">
+                              <template v-if="getTasksByStatus(project.id_projet, 'Terminé').length">
                                 <v-row style="margin-top: 10px;">
                                   <v-col
-                                    v-for="task in sortedTasks(getTasksByStatus(project.idproject, 'Terminé'))"
+                                    v-for="task in sortedTasks(getTasksByStatus(project.id_projet, 'Terminé'))"
                                     :key="task.id"
                                     cols="12"
                                     sm="4"
                                   >
                                     <v-card elevation="3" style="border-radius: 15px">
                                       <br>
-                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.name }}</span>
+                                      <span style="font-weight: bold; font-size: 16px; margin-left: 15px; margin-top: -15px;">Titre : {{ task.titre }}</span>
                                       <v-card-subtitle class="task-description" style="margin-top: 10px;">
                                         Description : <br />
                                         {{ task.descr }}
                                       </v-card-subtitle>
                                       <v-card-subtitle style="margin-top: 8px">Débuté le : {{ task.dateDebut }}</v-card-subtitle>
-                                      <v-chip :color="getStatusColor(task.status)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
-                                        {{ task.status }}
+                                      <v-chip :color="getStatusColor(task.statut)" small dark class="justify-center" style="margin-top: 8px; margin-left: 15px;">
+                                        {{ task.statut }}
                                       </v-chip>
                                       <br><br>
                                     </v-card>
@@ -261,7 +201,7 @@
                               </template>
                               <template v-else>
                                 <br><br>
-                                <span style="font-size: 12px; font-style: italic; color: #b9c3c4; margin-left: 20px; margin-top: 20px;">Pas de tâche effectuée en ce moment.</span>
+                                <span style="font-size: 12px; font-style: italic; color:#b9c3c4; margin-left: 20px; margin-top: 20px;">Pas de tâche effectuée en ce moment.</span>
                               </template>
                             </v-col>
                           </v-row>
@@ -275,171 +215,87 @@
           </v-card>
         </v-col>
       </v-container>
-
     </v-main>
   </v-app>
 </template>
 
 <script>
+import axios from "axios";
 import AdminNav from "../../components/admin/AdminNav.vue";
+import AdminAvatar from "../../components/admin/AdminAvatar.vue";
 
 export default {
   components: {
     AdminNav,
+    AdminAvatar,
   },
   data() {
     return {
-      dialog: false, // Pour contrôler l'affichage du modal
+      dialog: false,
       selectedProject: null,
-      selectedFilter: "Projet en cours",
-      filterOptions: [
-        "Projet en cours",
-        "Projet à faire",
-        "Projet terminé",
-        "Tous les projets",
-      ],
-      search: "",  // Ajout du champ de recherche
-      items1: [
-        {
-          idproject: "1",
-          name: "Développement local",
-          status: "En cours",
-          dateDebut: "2024-10-02",
-          showTasks: false,
-        },
-        {
-          idproject: "2",
-          name: "Assainissement de l'eau",
-          status: "Terminé",
-          dateDebut: "2024-09-05",
-          showTasks: false,
-        },
-        {
-          idproject: "3",
-          name: "Le droit foncier",
-          status: "À faire",
-          dateDebut: "2024-10-05",
-          showTasks: false,
-        },
-      ],
-      tasks: [
-        {
-          id: 1,
-          idproject: "1",
-          name: "Analyser les besoins",
-          status: "Terminé",
-          descr: "C'est l'analyse des besoins sur notre projet",
-          dateDebut: "2024-10-01",
-          priority: "haute",
-        },
-        {
-          id: 2,
-          idproject: "1",
-          name: "Développement",
-          status: "En cours",
-          descr: "C'est le développement de notre territoire",
-          dateDebut: "2024-04-15",
-          priority: "moyenne",
-        },
-        {
-          id: 3,
-          idproject: "2",
-          name: "Inspection",
-          status: "Terminé",
-          descr: "C'est l'inspection de notre territoire",
-          dateDebut: "2024-04-15",
-          priority: "basse"
-        },
-        {
-          id: 4,
-          idproject: "3",
-          name: "Évaluation légale",
-          status: "À faire",
-          descr: "C'est l'évaluation légale de notre territoire",
-          dateDebut: "2024-04-15",
-          priority: "haute",
-        },
-        {
-          id: 5,
-          idproject: "1",
-          name: "Priorisation de developpment",
-          status: "En cours",
-          descr: "C'est l'évaluation légale de notre territoire",
-          dateDebut: "2024-04-15",
-          priority: "basse",
-        },
-      ],
+      selectedFilter: "Tous les projets",
+      filterOptions: ["Tous les projets","En cours", "À faire", "Terminé"],
+      search: "",
+      projects: [],
     };
   },
   computed: {
-    filteredProjects() {
-      return this.items1.filter((project) => {
-        switch (this.selectedFilter) {
-          case "Projet en cours":
-            return project.status === "En cours";
-          case "Projet à faire":
-            return project.status === "À faire";
-          case "Projet terminé":
-            return project.status === "Terminé";
-          case "Tous les projets":
-            return true;
-          default:
-            return true;
-        }
-      });
-    },
-    filteredAndSearchedProjects() {
-      return this.filteredProjects.filter((project) => {
-        return project.name.toLowerCase().includes(this.search.toLowerCase());
-      });
-    },
+  filteredAndSearchedProjects() {
+    return this.projects.filter((project) => {
+      const matchesFilter =
+        this.selectedFilter === "Tous les projets" ||
+        project.statut.toLowerCase() === this.selectedFilter.toLowerCase(); // Ignore la casse
+      const matchesSearch = project.titre.toLowerCase().includes(this.search.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  },
+},
+
+  mounted() {
+    this.fetchProjects();
   },
   methods: {
-    getTaskCount(idproject) {
-      return this.tasks.filter((task) => task.idproject === idproject).length;
-    },
-    getTasks(idproject) {
-      return this.tasks.filter((task) => task.idproject === idproject);
-    },
-    getTasksByStatus(idproject, status) {
-      return this.tasks.filter(
-        (task) => task.idproject === idproject && task.status === status
-      );
-    },
-    sortedTasks(tasks) {
-      const priorityOrder = { "haute": 1, "moyenne": 2, "basse": 3 };
-      return tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-    },
-    getStatusColor(status) {
-      switch (status) {
-        case "À faire":
-          return "blue";
-        case "En cours":
-          return "orange";
-        case "Terminé":
-          return "green";
-        default:
-          return "grey";
+    async fetchProjects() {
+      try {
+        const response = await axios.get("http://localhost:5000/admin/avancProject");
+        this.projects = response.data;
+      } catch (error) {
+        console.error("Erreur lors de la récupération des projets:", error);
       }
     },
-    viewDetails(project) {
-      this.selectedProject = project; // Met à jour le projet sélectionné
-      this.dialog = true; // Ouvre le modal
+    async loadTasks(project) {
+      project.showTasks = !project.showTasks;
+      if (!project.tasks) {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/admin/avancProject/${project.id_projet}/getTask`
+          );
+          project.tasks = response.data;
+          console.log(`Tâches pour le projet ${project.id_projet}:`, project.tasks);
+        } catch (error) {
+          console.error("Erreur lors de la récupération des tâches:", error);
+        }
+      }
     },
+    getStatusColor(status) {
+      return status === "À faire" ? "blue" : status === "En cours" ? "orange" : "green";
+    },
+    getTaskCount(id_projet) {
+      const project = this.projects.find((p) => p.id_projet === id_projet);
+      return project?.tasks?.length || 0;
+    },
+    viewDetails(project) {
+      this.selectedProject = project;
+      this.dialog = true;
+    },
+    getTasksByStatus(id_projet, status) {
+  const project = this.projects.find((p) => p.id_projet === id_projet);
+  if (!project || !project.tasks) {
+    return []; // Renvoie un tableau vide si le projet ou les tâches n'existent pas
+  }
+  return project.tasks.filter(task => task.statut === status) || [];
+}
+,
   },
 };
 </script>
-
-<style>
-.NavBarTest {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
-.task-description {
-  white-space: normal;
-  overflow-wrap: break-word;
-}
-</style>

@@ -33,10 +33,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router"; // Importer useRouter
 
 const links = [
- // { text: "Tableau de bord", icon: "mdi-view-dashboard-outline", route: '/chefProjet/Dashboard' }, // Route pour Tableau de bord
-  { text: "Mes projets", icon: "mdi-briefcase-outline", route: '/chefProjet/Projet' }, // Route pour Utilisateur
-  { text: "Rapport d'avancement", icon: "mdi-chart-line", route: '/chefProjet/RapportAvancement' }, // Route pour Gestion du projet
-  { text: "Discussion", icon: "mdi-message-outline", route: '/chefProjet/Discussion' },
+  { text: "Tableau de bord", icon: "mdi-view-dashboard-outline", route: '/proposeur/Dashboard' }, // Route pour Tableau de bord
+  { text: "Proposition", icon: "mdi-briefcase-outline", route: '/proposeur/Projet' }, // Route pour Utilisateur
+  { text: "Notification", icon: "mdi-bell", route: '/proposeur/Notification' }, // Route pour Gestion du projet
 ];
 
 const drawer = ref(null);
@@ -51,7 +50,7 @@ const navigateTo = (item, index) => {
 </script>
 <script>
 export default {
-    name: "ChefNav",
+    name: "ProposeurNav",
 }
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <v-app :style="{ backgroundColor: '#F4F5FA', fontFamily: 'ABeeZee' }">
-    <NavBarTest />
+    <AdminNav />
     <v-main>
       <v-container fluid class="px-6 mt-n2">
         <v-col cols="12">
@@ -12,15 +12,10 @@
             <v-container style="margin-top: -6px">
               <v-row align="center">
                 <v-col cols="10">
-                  <p class="monTitle">Tableau de bord</p>
+                  <p class="monTitle">Tableau de bords</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                  <AdminAvatar />
                 </v-col>
               </v-row>
             </v-container>
@@ -39,7 +34,7 @@
                 >
                 <v-container>
                   <v-row no-gutters>
-                    <!-- Card 1 -->
+                    <!-- Card pour les projets en cours -->
                     <v-col cols="12" sm="3">
                       <v-card
                         class="pa-1 ma-3"
@@ -60,8 +55,9 @@
                                 margin-bottom: -8px;
                                 font-size: 20px;
                               "
-                              >2</v-card-subtitle
                             >
+                              {{ projectStats.projets_en_cours }}
+                            </v-card-subtitle>
                           </v-col>
                           <v-col class="d-flex justify-end">
                             <v-btn
@@ -81,13 +77,19 @@
                         <v-card-text style="margin-bottom: -15px"
                           >En cours</v-card-text
                         >
-                        <div style="margin-top: 10px; margin-left: 10px">
-                          <v-icon color="success">mdi-trending-up</v-icon>
-                          <span style="font-size: 13px; color: green">50%</span>
+                        <div style="margin-top: 2px; margin-left: 10px">
+                          <v-btn
+                            :prepend-icon="'mdi-open-in-new'"
+                            variant="plain"
+                            class="text-none"
+                            style="font-size: 11px; color: grey"
+                            >Voir projet</v-btn
+                          >
                         </div>
                       </v-card>
                     </v-col>
-                    <!-- Card 2 -->
+
+                    <!-- Card pour les projets terminés -->
                     <v-col cols="12" sm="3">
                       <v-card
                         class="pa-1 ma-3"
@@ -108,8 +110,9 @@
                                 margin-bottom: -8px;
                                 font-size: 20px;
                               "
-                              >3</v-card-subtitle
                             >
+                              {{ projectStats.projets_proposes }}
+                            </v-card-subtitle>
                           </v-col>
                           <v-col class="d-flex justify-end">
                             <v-btn
@@ -127,15 +130,21 @@
                           </v-col>
                         </v-row>
                         <v-card-text style="margin-bottom: -15px"
-                          >Terminé</v-card-text
+                          >À faire</v-card-text
                         >
-                        <div style="margin-top: 10px; margin-left: 10px">
-                          <v-icon color="success">mdi-trending-up</v-icon>
-                          <span style="font-size: 13px; color: green">50%</span>
+                        <div style="margin-top: 2px; margin-left: 10px">
+                          <v-btn
+                            :prepend-icon="'mdi-open-in-new'"
+                            variant="plain"
+                            class="text-none"
+                            style="font-size: 11px; color: grey"
+                            >Voir projet</v-btn
+                          >
                         </div>
                       </v-card>
                     </v-col>
-                    <!-- Card 3 -->
+
+                    <!-- Card pour les projets proposés -->
                     <v-col cols="12" sm="3">
                       <v-card
                         class="pa-1 ma-3"
@@ -156,8 +165,9 @@
                                 margin-bottom: -8px;
                                 font-size: 20px;
                               "
-                              >5</v-card-subtitle
                             >
+                              {{ projectStats.projets_proposes }}
+                            </v-card-subtitle>
                           </v-col>
                           <v-col class="d-flex justify-end">
                             <v-btn
@@ -175,15 +185,21 @@
                           </v-col>
                         </v-row>
                         <v-card-text style="margin-bottom: -15px"
-                          >Proposé</v-card-text
+                          >Terminé</v-card-text
                         >
-                        <div style="margin-top: 10px; margin-left: 10px">
-                          <v-icon color="success">mdi-trending-up</v-icon>
-                          <span style="font-size: 13px; color: green">50%</span>
+                        <div style="margin-top: 2px; margin-left: 10px">
+                          <v-btn
+                            :prepend-icon="'mdi-open-in-new'"
+                            variant="plain"
+                            class="text-none"
+                            style="font-size: 11px; color: grey"
+                            >Voir projet</v-btn
+                          >
                         </div>
                       </v-card>
                     </v-col>
-                    <!-- Card 4 -->
+
+                    <!-- Card pour le total des projets dans projetAvancement -->
                     <v-col cols="12" sm="3">
                       <v-card
                         class="pa-1 ma-3"
@@ -204,8 +220,9 @@
                                 margin-bottom: -8px;
                                 font-size: 20px;
                               "
-                              >10</v-card-subtitle
                             >
+                              {{ projectStats.total_avancement }}
+                            </v-card-subtitle>
                           </v-col>
                           <v-col class="d-flex justify-end">
                             <v-btn
@@ -225,9 +242,14 @@
                         <v-card-text style="margin-bottom: -15px"
                           >Total projets</v-card-text
                         >
-                        <div style="margin-top: 10px; margin-left: 10px">
-                          <v-icon color="success">mdi-trending-up</v-icon>
-                          <span style="font-size: 13px; color: green">50%</span>
+                        <div style="margin-top: 2px; margin-left: 10px">
+                          <v-btn
+                            :prepend-icon="'mdi-open-in-new'"
+                            variant="plain"
+                            class="text-none"
+                            style="font-size: 11px; color: grey"
+                            >Voir projet</v-btn
+                          >
                         </div>
                       </v-card>
                     </v-col>
@@ -250,7 +272,7 @@
                     >
                   </v-row>
                   <v-row>
-                    <UserStat />
+                    <UserStatCompo />
                   </v-row>
                 </v-container>
               </v-sheet>
@@ -259,7 +281,7 @@
 
           <!-- Project Progress Chart -->
           <v-row no-gutters>
-            <v-col cols="12" sm="8">
+            <v-col cols="12" sm="12">
               <v-sheet
                 class="pa-2 ma-2"
                 elevation="0"
@@ -267,19 +289,19 @@
               >
                 <v-row>
                   <!-- Select field pour choisir le projet -->
-                  <v-col cols="12" sm="6">
+                  <v-col cols="12" sm="4">
                     <v-select
                       v-model="selectedProject"
                       :items="projects"
                       label="Choisir un projet"
-                      outlined
+                      variant="outlined"
                       dense
                     ></v-select>
                   </v-col>
                 </v-row>
                 <!-- Graphique de l'avancement des tâches -->
                 <v-row>
-                  <v-col cols="12" sm="8">
+                  <v-col cols="12" sm="3">
                     <apexchart
                       type="bar"
                       :options="chartOptions"
@@ -287,32 +309,46 @@
                       :width="350"
                     ></apexchart>
                   </v-col>
-                  <v-col cols="12" sm="4">
-  <div style="position: relative; display: flex; justify-content: center; align-items: center;">
-    <v-progress-circular
-      :model-value="progressPercentage"
-      color="#58d67ed7"
-      size="135"
-      width="12"
-      rotate="-90"
-    ></v-progress-circular>
-    <span style="position: absolute; text-align: center; color: black; font-size: 13px;">
-      Avancement <br>
-      <span style="font-size: 20px ; color: black;">{{ progressPercentage }}%</span>
-    </span>
-  </div>
-</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="5">
+                    <div
+                      style="
+                        position: relative;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                      "
+                    >
+                      <v-progress-circular
+                        :model-value="progressPercentage"
+                        color="#58d67ed7"
+                        size="135"
+                        width="12"
+                        rotate="-90"
+                      ></v-progress-circular>
+                      <span
+                        style="
+                          position: absolute;
+                          text-align: center;
+                          color: black;
+                          font-size: 13px;
+                        "
+                      >
+                        Avancement <br />
+                        <span style="font-size: 20px; color: black"
+                          >{{ progressPercentage }}%</span
+                        >
+                      </span>
+                    </div>
+                  </v-col>
+                  <v-col cols="4">
                     <div id="map" style="height: 300px"></div>
                   </v-col>
-                  <!-- je veux que tu montre le map ici  -->
                 </v-row>
+                
               </v-sheet>
             </v-col>
 
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="12">
               <v-sheet class="pa-2 ma-2" style="border-radius: 10px">
                 <v-container>
                   <v-row>
@@ -375,6 +411,87 @@
               </v-sheet>
             </v-col>
           </v-row>
+          <v-row no-gutters>
+            <v-col cols="12" sm="12">
+              <v-sheet class="pa-2 ma-2" style="border-radius: 10px">
+              <v-container>
+                <v-row>
+                  <v-col cols="3">
+                     <v-select
+    v-model="select"
+    :hint="`${select.abbr}`"
+    :items="items1"
+    item-title="state"
+    item-value="abbr"
+    label="Select"
+    persistent-hint
+    return-object
+    single-line
+    variant="outlined"
+  ></v-select>
+                  </v-col>
+                  <v-col cols="auto">
+                    <span>Priorité : haute</span>
+                  </v-col>
+                  <v-col cols="auto">
+                    <span>Debut : 10 septembre 2024</span>
+                  </v-col>
+                  <v-col cols="auto">
+                    <span>Fin : 15 octobre 2024</span>
+                  </v-col>
+                  <v-col cols="auto">
+                    <span>Status : En cours</span>
+                  </v-col>
+                </v-row>
+              <v-row no-gutters>
+    <v-col cols="auto">
+      <UserStatCompo />
+    </v-col>
+    <v-col cols="3">
+      <v-card
+        class="pa-1 ma-3"
+        elevation="0"
+        style="
+          border-radius: 15px;
+          color: black;
+          background-color: #eaf7ef;
+        "
+      >
+        <v-container>
+          <span>Progrès</span><br>
+          <div style="display: flex; align-items: center;">
+            <v-progress-linear
+              v-model="skill"
+              color="#b6e9f8"
+              height="8"
+              rounded
+              style="flex: 1; margin-top: 5px;"
+            ></v-progress-linear>
+            <span style="margin-left: 10px; margin-top: 3px;">{{ Math.ceil(skill) }}%</span> <!-- Affichage du pourcentage -->
+          </div><br>
+          <v-row>
+            <v-container style="margin-top: -15px;">
+              <span>Retard</span>
+              <v-card-subtitle style="margin-left: -15px;">0jr</v-card-subtitle>
+            </v-container>    
+          </v-row>
+          <v-row>
+            <v-container style="margin-top: -20px;">
+              <span>Durée tâche</span>
+              <v-card-subtitle style="margin-left: -15px;">90jrs</v-card-subtitle>
+            </v-container>    
+          </v-row>
+        </v-container>
+      </v-card>
+    </v-col>
+    <v-col>
+      
+    </v-col>
+  </v-row>
+              </v-container>
+              </v-sheet>
+            </v-col>
+          </v-row>
         </v-col>
       </v-container>
     </v-main>
@@ -382,18 +499,37 @@
 </template>
 
 <script>
-import NavBarTest from "@/components/NavBarTest.vue";
-import UserStat from "@/components/UserStat.vue";
+import AdminNav from "../components/admin/AdminNav.vue";
+import AdminAvatar from "../components/admin/AdminAvatar.vue";
+import UserStatCompo from "../components/admin/UserStatCompo.vue";
 import VueApexCharts from "vue3-apexcharts";
 
 export default {
   components: {
-    NavBarTest,
-    UserStat,
+    AdminNav,
+    AdminAvatar,
+    UserStatCompo,
     apexchart: VueApexCharts, // Enregistrement local de ApexCharts
   },
   data() {
     return {
+      skill: 70,
+      knowledge: 33,
+      power: 78,
+      select: { state: 'Florida', abbr: 'FL' },
+        items1: [
+          { state: 'Florida', abbr: 'FL' },
+          { state: 'Georgia', abbr: 'GA' },
+          { state: 'Nebraska', abbr: 'NE' },
+          { state: 'California', abbr: 'CA' },
+          { state: 'New York', abbr: 'NY' },
+        ],
+      projectStats: {
+        projets_en_cours: 0,
+        projets_termine: 0,
+        projets_proposes: 0,
+        total_avancement: 0,
+      },
       items: [
         {
           name: "Employé 1",
@@ -468,6 +604,7 @@ export default {
   mounted() {
     this.calculateProgress();
     this.initMap();
+    this.fetchProjectStats();
   },
   watch: {
     selectedProject(newProject) {
@@ -476,7 +613,24 @@ export default {
       this.updateMap(newProject); // Met à jour la carte lorsque le projet change
     },
   },
+  created() {
+    this.fetchProjectStats();
+  },
   methods: {
+    async fetchProjectStats() {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/admin/statProject"
+        ); // Remplace avec le bon endpoint
+        console.log("Données de projet:", response.data); // Log des données
+        this.projectStats = response.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des statistiques de projet:",
+          error
+        );
+      }
+    },
     calculateProgress() {
       const tasks = this.projectTasks[this.selectedProject];
       const totalTasks = tasks.reduce((sum, value) => sum + value, 0);
@@ -485,7 +639,7 @@ export default {
         2
       );
     },
-    
+
     initMap() {
       this.map = L.map("map").setView(
         this.projectLocations[this.selectedProject],
@@ -526,6 +680,3 @@ export default {
   width: 100%; /* S'assurer que la carte occupe toute la largeur */
 }
 </style>
-
-
-

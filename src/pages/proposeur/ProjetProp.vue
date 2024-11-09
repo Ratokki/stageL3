@@ -1,6 +1,6 @@
 <template>
   <v-app :style="{ backgroundColor: '#F4F5FA', fontFamily: 'ABeeZee' }">
-    <ChefNav />
+    <ProposeurNav/>
     <v-main>
       <v-container fluid class="px-6 mt-n2">
         <!-- pour la toolbar -->
@@ -13,29 +13,34 @@
             <v-container style="margin-top: -6px">
               <v-row align="center">
                 <v-col cols="10">
-                  <p>Dashboard</p>
+                  <p>Page de proposition</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <ChefAvatar/>
+                  <v-avatar class="monAvatar" size="40">
+                    <img
+                      src="https://cdn.vuetifyjs.com/images/john.jpg"
+                      alt="John"
+                    />
+                  </v-avatar>
                 </v-col>
               </v-row>
             </v-container>
           </v-card>
         </v-col>
         
-        <!-- Contenu de dashboard -->
-        <v-col cols="12">
+      </v-container>
+      <v-container fluid class="px-6 mt-n2" style="margin-top: -8px">
+        <v-col cols="12" style="margin-top: -8px">
           <v-card
-            height="58"
             elevation="0"
-            style="background-color: white; border-radius: 10px"
+            style="
+              background-color: white;
+              border-radius: 10px;
+              margin-top: -25px;
+            "
           >
             <v-container style="margin-top: -6px">
-              <v-row align="center">
-                <v-sheet class="d-flex justify-space-between align-center pa-4">
-                  
-                </v-sheet>
-              </v-row>
+              <ProposeProjet/>
             </v-container>
           </v-card>
         </v-col>
@@ -45,12 +50,13 @@
 </template>
 
 <script>
-import ChefNav from "../../components/chefProjet/ChefNav.vue";
-import ChefAvatar from "../../components/chefProjet/ChefAvatar.vue";
+import ProposeProjet from '../../components/proposeur/ProposeProjet.vue';
+import ProposeurNav from "../../components/proposeur/ProposeurNav.vue";
+
 export default {
     components: {
-    ChefNav,
-    ChefAvatar
+    ProposeurNav,
+    ProposeProjet
   },
   data() {
     return {

@@ -23,7 +23,7 @@ import Utilisateur from '@/pages/admin/Utilisateur.vue';
 import Notification from '@/pages/admin/Notification.vue';
 import Budget from '@/pages/admin/Budget.vue';
 
-import DashboardChef from '@/pages/chefprojet/DashboardChef.vue';
+//import DashboardChef from '@/pages/chefprojet/DashboardChef.vue';
 import ProjetChef from '@/pages/chefprojet/ProjetChef.vue';
 import RapportAvanc from '@/pages/chefprojet/RapportAvanc.vue';
 import DiscussionChef from '@/pages/chefprojet/DiscussionChef.vue';
@@ -31,6 +31,10 @@ import DiscussionChef from '@/pages/chefprojet/DiscussionChef.vue';
 import TacheEmp from '@/pages/employe/TacheEmp.vue';
 import RapportEmp from '@/pages/employe/RapportEmp.vue';
 import DiscussionEmp from '@/pages/employe/DiscussionEmp.vue';
+
+import DashboardProp from '@/pages/proposeur/DashboardProp.vue';
+import ProjetProp from '@/pages/proposeur/ProjetProp.vue';
+import NotificationProp from '@/pages/proposeur/NotificationProp.vue';
 
 
 routes.push({
@@ -122,11 +126,11 @@ routes.push({
 
 
 //Pour le chef de projet
-routes.push({
+/* routes.push({
   path: '/chefProjet/Dashboard',
   name: 'dashboardChef',
   component: DashboardChef,
-});
+}); */
 
 routes.push({
   path: '/chefProjet/Projet',
@@ -168,7 +172,24 @@ routes.push({
 })
 
 
+//Pour proposeur
+routes.push({
+  path: '/proposeur/Dashboard',
+  name: 'dashboardProp',
+  component: DashboardProp,
+})
 
+routes.push({
+  path: '/proposeur/Projet',
+  name: 'projetProp',
+  component: ProjetProp,
+})
+
+routes.push({
+  path: '/proposeur/Notification',
+  name: 'notificationProp',
+  component: NotificationProp,
+})
 
 // Créer le routeur
 const router = createRouter({

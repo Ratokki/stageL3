@@ -104,41 +104,56 @@ export default {
   },
   methods: {
     
-  async login() {
-    this.load = true;
-    try {
-        const response = await axios.post('http://localhost:5000/user/login', this.loginForm);
-        const { user, token } = response.data;
+async login() {
+  this.load = true;
+  try {
+    const response = await axios.post('http://localhost:5000/user/login', this.loginForm);
+    const { user, token, status } = response.data; // Récupérez le statut
 
-        localStorage.setItem('accessToken', token);
-        localStorage.setItem('userData', JSON.stringify(user));
-
-        // Vérifier les rôles et rediriger en conséquence
-        if (this.loginForm.email === 'tokkiervel@gmail.com' && this.loginForm.password === '123') {
-          this.snackbarMessage = `Bienvenue ${this.loginForm.email}`;
-            this.$router.push('/admin/dashboard');
-        } else if (user.role === 'Chef de projet') {
-            this.$router.push('/chefProjet/dashboard');
-        } else if (user.role === 'Employé') {
-            this.$router.push('/employe/Tache');
-        } else {
-            this.snackbarMessage = "Rôle d'utilisateur non reconnu.";
-            this.snackbarColor = "warning";
-            this.snackbar = true;
-        }
-
-        this.snackbarMessage = `Bienvenue ${this.loginForm.email}`;
-        this.snackbarColor = "success";
-
-    } catch (err) {
-        console.error(err);
-        this.snackbarMessage = "Erreur lors de la connexion. Veuillez réessayer.";
-        this.snackbarColor = "warning";
-        this.snackbar = true;
-    } finally {
-        this.load = false;
+    if (status === 'En attente') {
+      this.snackbarMessage = "Vous devez attendre l'acceptation de l'administration.";
+      this.snackbarColor = "warning";
+      this.snackbar = true;
+      return; // Ne continuez pas après cela
     }
+
+    if (status !== 'Accepté') {
+      this.snackbarMessage = "Erreur lors de la connexion. Veuillez réessayer.";
+      this.snackbarColor = "warning";
+      this.snackbar = true;
+      return; // Ne continuez pas après cela
+    }
+
+    localStorage.setItem('accessToken', token);
+    localStorage.setItem('userData', JSON.stringify(user));
+    localStorage.setItem('userId', user.id); // Ajouter l'ID utilisateur séparément
+
+    // Vérifier les rôles et rediriger en conséquence
+    if (this.loginForm.email === 'tokkiervel@gmail.com' && this.loginForm.password === '123') {
+      this.snackbarMessage = `Bienvenue ${this.loginForm.email}`;
+      this.$router.push('/admin/dashboard');
+    } else if (user.role === 'Chef de projet') {
+      this.$router.push('/chefProjet/Projet');
+    } else if (user.role === 'Employé') {
+      this.$router.push('/employe/Tache');
+    } else {
+      this.snackbarMessage = "Rôle d'utilisateur non reconnu.";
+      this.snackbarColor = "warning";
+      this.snackbar = true;
+    }
+
+    this.snackbarMessage = `Bienvenue ${this.loginForm.email}`;
+    this.snackbarColor = "success";
+  } catch (err) {
+    console.error(err);
+    this.snackbarMessage = "Erreur de connexion, veuillez réessayer.";
+    this.snackbarColor = "warning";
+    this.snackbar = true;
+  } finally {
+    this.load = false;
+  }
 },
+
 
 
     toggleShowPass() {

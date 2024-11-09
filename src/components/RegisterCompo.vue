@@ -26,7 +26,6 @@
     <v-card elevation="4" class="pa-4" style="border-radius: 20px;">
       <v-form>
         <br />
-        <!-- Remplacer l'élément <center> par une classe Vuetify pour centrer -->
         <div class="text-center">
           <span class="monFont">Ajouter un compte</span>
         </div>
@@ -45,8 +44,11 @@
         <v-text-field v-model="signupForm.password" placeholder="Mot de passe" color="success" density="comfortable"
           variant="outlined"
           rounded :type="showPass ? 'text' : 'password'" @click:append="reverse()" :append-inner-icon="showPass ? 'mdi-eye-off' : 'mdi-eye'" @input="checkFormValidity"></v-text-field>
-
-        
+          <v-select placeholder="Rôle" :items="['Employé', 'Chef de projet', 'Partenaire']" v-model="signupForm.role" density="comfortable" rounded variant="outlined" required></v-select>
+          <v-radio-group v-model="signupForm.genre">
+        <v-radio label="Homme" value="Homme"></v-radio>
+        <v-radio label="Femme" value="Femme"></v-radio>
+      </v-radio-group>
         <v-btn type="submit" color="#1D9A48" style="width: 100%; color: white; border-radius: 30px; height: 45px; background: linear-gradient(90deg, #91e658ea, #45af65ef)" @click.prevent="signup" :loading="load">
           S'inscrire
         </v-btn>
@@ -62,8 +64,9 @@
 </template>
 
 <script>
-
 import axios from 'axios';
+//import defaultMale from '@/assets/defaultMale.jpg'; // Importer l'image pour homme
+//import defaultFemale from '@/assets/defaultFemale.jpg'; // Importer l'image pour femme
 
 export default {
   data() {
@@ -73,14 +76,16 @@ export default {
         prenom: '',
         email: '',
         password: '',
-        profile: 'mdi-user'
+        profile: '', // Laisser vide au début
+        role: '',
+        genre: '',
       },
       snackbar: false,
-      text: '', // Mettre à jour dynamiquement le message de bienvenue après l'inscription
+      text: '',
       timeout: 2000,
       load: false,
       isFormInvalid: true,
-      textWrongPass: 'Mauvaise information, veuillez reéssayer',
+      textWrongPass: 'Mauvaise information, veuillez réessayer',
       snackbarWrongPass: false,
       textDoneSignup: 'Compte créé avec succès',
       snackbarDoneSignup: false,
@@ -89,10 +94,23 @@ export default {
     };
   },
 
+  watch: {
+  'signupForm.genre'(newGenre) {
+    // Mettre à jour le profil par défaut en fonction du genre sélectionné
+    if (newGenre === 'Homme') {
+      this.signupForm.profile = 'uploads/defaultMale.jpg';
+    } else if (newGenre === 'Femme') {
+      this.signupForm.profile = 'uploads/defaultFemale.jpg';
+    } else {
+      this.signupForm.profile = ''; // Laisser vide si aucune sélection
+    }
+  }
+}
+,
+
   methods: {
     checkFormValidity() {
-      // Validation du formulaire, mise à jour uniquement si nécessaire
-      const isValid = this.signupForm.nom && this.signupForm.prenom && this.signupForm.email && this.signupForm.password;
+      const isValid = this.signupForm.nom && this.signupForm.prenom && this.signupForm.email && this.signupForm.password && this.signupForm.role && this.signupForm.genre;
       if (this.isFormInvalid !== !isValid) {
         this.isFormInvalid = !isValid;
       }
@@ -103,22 +121,24 @@ export default {
     },
 
     async signup() {
-            try {
-                await axios.post('http://localhost:5000/user/register', this.signupForm)
-                this.loginForm = { name: '', userName: '', email: '', password: '', numTelephone: '', profile: '' };
-                this.signupForm.email = '',
-                this.signupForm.name = '',
-                this.signupForm.numTelephone = '',
-                this.signupForm.password = '',
-                this.signupForm.userName = '',
-                this.snackbarDoneSignup = true
-            }
-            catch (err) {
-                // alert('Erreur lors de la inscri');
-            }
-            // Ajoutez votre logique d'inscription ici
-            console.log('Inscription en cours:', this.signupForm);
-        },
+      try {
+        // S'assurer que le profil est défini avant d'envoyer les données
+        if (!this.signupForm.profile) {
+          this.snackbarWrongPass = true;
+          this.textWrongPass = "Veuillez sélectionner un genre.";
+          return;
+        }
+
+        await axios.post('http://localhost:5000/user/register', this.signupForm);
+        this.signupForm = { nom: '', prenom: '', email: '', password: '', profile: '', role: '', genre: '' }; // Réinitialiser le formulaire
+        this.snackbarDoneSignup = true;
+      } catch (err) {
+        console.error("Erreur lors de l'inscription :", err);
+        this.snackbarWrongPass = true; // Afficher un snackbar pour indiquer l'erreur
+        this.textWrongPass = err.response.data.message || 'Une erreur est survenue'; // Message d'erreur plus clair
+      }
+      console.log('Inscription en cours:', this.signupForm);
+    },
 
     seConnecter() {
       this.$router.push('/login'); // Redirection vers la page de connexion
@@ -126,14 +146,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.Forgot-password:hover {
-  text-decoration: underline;
-}
-
-.monFont {
-  font-size: 25px;
-  font-family: 'ABeeZee';
-}
-</style>

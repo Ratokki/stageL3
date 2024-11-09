@@ -37,8 +37,6 @@ const links = [
   { text: "Utilisateur", icon: "mdi-account", route: '/admin/Utilisateur' }, // Route pour Utilisateur
   { text: "Gestion du projet", icon: "mdi-briefcase", route: '/admin/Projet' }, // Route pour Gestion du projet
   { text: "Gestion de tâche", icon: "mdi-clipboard-check", route: '/admin/Tache' }, // Route pour Gestion de tâche
-  { text: "Notification", icon: "mdi-bell", route: '/admin/Notification' }, // Route pour Notification
-  { text: "Budget", icon: "mdi-cash-multiple", route: '/admin/Budget' }, // Route pour Budget
 ];
 
 const drawer = ref(null);

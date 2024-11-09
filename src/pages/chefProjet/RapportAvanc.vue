@@ -16,12 +16,7 @@
                   <p>Rapport d'avancement</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                  <ChefAvatar/>
                 </v-col>
               </v-row>
             </v-container>
@@ -51,9 +46,11 @@
 
 <script>
 import ChefNav from "../../components/chefProjet/ChefNav.vue";
+import ChefAvatar from "../../components/chefProjet/ChefAvatar.vue";
 export default {
     components: {
     ChefNav,
+    ChefAvatar
   },
   data() {
     return {
