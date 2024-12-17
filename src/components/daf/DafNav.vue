@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" class="custom-drawer ma-4 pa-2" elevation="2" style="border-radius: 20px;">
+  <v-navigation-drawer v-model="drawer" class="ma-4 pa-2"  elevation="2" style="border-radius: 20px;">
     <v-sheet class="pa-4 rounded-te-xl text-center">
       <center>
         <v-img src="../../assets/Fiantso.png" width="120" height="60"></v-img>
@@ -33,14 +33,13 @@ import { ref } from "vue";
 import { useRouter } from "vue-router"; // Importer useRouter
 
 const links = [
-  { text: "Tableau de bord", icon: "mdi-view-dashboard", route: '/admin/Dashboard' }, // Route pour Tableau de bord
-  { text: "Utilisateur", icon: "mdi-account", route: '/admin/Utilisateur' }, // Route pour Utilisateur
-  { text: "Gestion du projet", icon: "mdi-briefcase", route: '/admin/Projet' }, // Route pour Gestion du projet
-  { text: "Gestion de tâche", icon: "mdi-clipboard-check", route: '/admin/Tache' }, // Route pour Gestion de tâche
+  { text: "Tableau de bord", icon: "mdi-view-dashboard", route: '/daf/DashboardDaf' }, // Route pour Tableau de bord
+  { text: "Gestion budgetaire", icon: "mdi-briefcase", route: '/daf/BudgetDaf' }, // Route pour Gestion du projet
+  { text: "Discussion", icon: "mdi-clipboard-check", route: '/daf/DiscussionDaf' }, // Route pour Gestion de tâche
 ];
 
 const drawer = ref(null);
-const selectedItem = ref(null); // Suivre l'élément sélectionné
+const selectedItem = ref(null); // Suivre l'élément sélectionné 
 const router = useRouter(); // Utiliser le routeur
 
 // Fonction pour naviguer vers une route et mettre à jour l'élément sélectionné
@@ -65,7 +64,5 @@ const navigateTo = (item, index) => {
   border-radius: 0px 35px 35px 0px; /* Arrondi pour l'élément sélectionné */
   color: white; /* Couleur du texte lors de la sélection */
   background: linear-gradient(90deg, #9bf560d3, #58d67ed7); /* Dégradé lors de la sélection */
-}
-.custom-drawer {
 }
 </style>

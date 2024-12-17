@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-snackbar  
+      :timeout="2000"
+      color="success"
+      rounded="pill"
+      v-model="snackbarSuccessEdit"
+      top
+      transition="fade-blur"
+    >
+
+       <strong>{{ textSuccessEdit }}</strong>
+    </v-snackbar>
     <v-menu transition="slide-y-transition">
       <template v-slot:activator="{ props }">
         <v-avatar class="monAvatar" size="40" v-bind="props">
@@ -88,7 +99,7 @@
               </v-row>
               <v-row no-gutters>
                 <v-col cols="12" sm="6">
-                <v-select class="mx-2" v-model="role" label="Rôle" density="comfortable" rounded variant="outlined" :items="['Admin']" required></v-select>
+                <v-select class="mx-2" v-model="role" label="Rôle" density="comfortable" rounded variant="outlined" :items="['Proposeur']" required></v-select>
                 </v-col>
                 <v-col cols="12" sm="6">
                <v-select class="mx-2" v-model="genre" label="Genre" density="comfortable" rounded variant="outlined" :items="['Homme', 'Femme']" required></v-select>

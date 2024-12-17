@@ -1,18 +1,33 @@
 <template>
     <div>
+        <!-- Modal pour afficher les détails d'un projet -->
+        <v-dialog v-model="dialogDetails" max-width="500px">
+            <v-card>
+                <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;">
+                    <span style="margin-top: 10px;">Détails de projet</span>
+                </v-card-title>
+                <v-card-text>
+                    <div v-if="selectedProject">
+                        <v-card-subtitle>Titre : {{ selectedProject.titre }}</v-card-subtitle>
+                        <v-card-subtitle>Date de proposition : {{ selectedProject.date_proposition }}</v-card-subtitle>
+                        <v-card-subtitle>Statut : {{ selectedProject.statut }}</v-card-subtitle>
+                        <v-card-subtitle>Budget : {{ selectedProject.budget }} €</v-card-subtitle>         
+                    </div>
+                    <div v-else>
+                        <v-alert type="error">Aucun détail disponible pour ce projet.</v-alert>
+                    </div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="dialogDetails = false" style="margin-top: -15px; margin-right: 5px;">
+                        Annuler
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <v-row align="center" style="margin-top: 10px">
             <v-sheet class="d-flex justify-space-between align-center pa-4">
-                <v-select
-                    v-model="selectedFilter"
-                    :items="filterOptions"
-                    persistent-hint
-                    single-line
-                    variant="plain"
-                    class="custom-select"
-                    style="max-width: 200px; margin-top: -5px; margin-left: 10px;"
-                ></v-select>
+                <v-select v-model="selectedFilter" :items="filterOptions" persistent-hint single-line variant="plain" class="custom-select" style="max-width: 200px; margin-top: -5px; margin-left: 10px;"></v-select>
             </v-sheet>
-
             <v-spacer></v-spacer>
             <div>
                 <v-text-field
@@ -35,51 +50,38 @@
         <!-- Liste de projet -->
         <v-row>
             <v-col cols="12">
-                <v-data-table
-                    v-model:search="search"
-                    :headers="headers1"
-                    :items="projects"
-                    item-value="name"
-                    style="border-radius: 15px; margin-top: -20px"
-                    
-                >
+                <v-data-table v-model:search="search" :headers="headers1" :items="projects" ref="projectTable" item-value="name" class="scroll-container" style="background-color: white; border-radius: 15px; margin-top: -30px; max-height: 430px; overflow-y: auto;">
                     <template v-slot:item.date_debut="{ item }">
                         {{ formatDate(item.date_debut) }}
                     </template>
                     <template v-slot:item.statut="{ item }">
-                        <v-chip
-                            :color="getStatusColor(item.statut)"
-                            small
-                            dark
-                            class="justify-center"
-                        >
+                        <v-chip :color="getStatusColor(item.statut)" small dark class="justify-center">
                             {{ item.statut }}
                         </v-chip>
                     </template>
                     <template v-slot:item.profile_utilisateur="{ item }">
-            <v-avatar size="38">
-              <v-img :src="item.profile_utilisateur" height="38" cover alt="Image de profil" />
-            </v-avatar>
-          </template>
+                        <v-avatar size="38">
+                            <v-img :src="item.profile_utilisateur" height="38" cover alt="Image de profil" />
+                        </v-avatar>
+                    </template>
                     <template v-slot:item.responsable="{ item }">
-                        {{ item.nom_responsable }} {{ item.prenom_responsable }}  <!-- Affiche le nom et prénom -->
+                        {{ item.nom_responsable }} {{ item.prenom_responsable }}
                     </template>
                      <template v-slot:item.pourcentage="{ item }">
-                        <v-progress-circular
-                        
-                            :model-value="item.pourcentage"
-                            color="blue"
-                            size="45"
-                            width="5"
-                        >
+                        <v-progress-circular :model-value="item.pourcentage" color="blue" size="45" width="5">
                             {{ item.pourcentage }}%
                         </v-progress-circular>
                     </template>
                     <template v-slot:item.actions="{ item }">
-                        <v-btn variant="text" icon @click="viewDetails(item)" style="margin-left: 5px" dark>
+                            {{ console.log(item) }}
+                        <v-btn variant="text" icon @click="viewDetails(item.id_projet)" style="margin-left: 5px" dark>
                             <img src="../../assets/eye.png" height="29px" />
+                                <v-tooltip activator="parent" location="bottom" class="custom-tooltip">
+                                    Voir détails
+                                </v-tooltip>
                         </v-btn>
                     </template>
+
                 </v-data-table>
             </v-col>
         </v-row>
@@ -96,6 +98,8 @@ export default {
             search: '',
             selectedFilter: null,
             filterOptions: [],
+            dialogDetails: false,
+            selectedProject: null,
             headers1: [
                 { text: "Titre", key: "titre", align: "start" },
                 { text: "Sigle", key: "sigle", align: "start" },
@@ -110,6 +114,15 @@ export default {
     },
     mounted() {
         this.fetchProjects();
+    },
+    watch: {
+        // Déclencher le défilement quand `projects` change
+        projects: {
+            handler() {
+                this.scrollToEnd();
+            },
+            deep: true,
+        },
     },
     methods: {
         formatDate(dateString) {
@@ -143,6 +156,39 @@ export default {
     }
 }
 ,
+scrollToEnd() {
+            this.$nextTick(() => {
+                const container = this.$refs.projectTable?.$el?.querySelector(".scroll-container");
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+        },
+
+
+async viewDetails(projectId) {
+  console.log("Project ID reçu :", projectId); // Pour débogage
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/admin/allProjects/?id_projet=${projectId}`
+    );
+
+    // Affiche les données reçues pour vérification
+    console.log("Données reçues de l'API :", response.data);
+
+    // Si la réponse est un tableau, on prend le premier élément
+    this.selectedProject = response.data[0] || null;
+
+    // Ouvrir le modal
+    this.dialogDetails = true;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des détails du projet:", error);
+    this.selectedProject = null; // Aucun détail à afficher en cas d'erreur
+    this.dialogDetails = true;  // Afficher quand même le modal pour l'alerte
+  }
+}
+
+,
         getStatusColor(status) {
             switch (status) {
                 case 'À faire':
@@ -163,15 +209,31 @@ export default {
         deleteProject(item) {
             // Logique pour supprimer le projet
         },
-        viewDetails(item) {
-            // Logique pour afficher les détails du projet
-        }
+        
     }
 };
 </script>
 
 <style scoped>
-/* Ajoutez votre style ici si nécessaire */
+/* Cibler les barres de défilement pour les sections spécifiques */
+::-webkit-scrollbar {
+  width: 0px; /* Cache la scrollbar verticale */
+  height: 0px; /* Cache la scrollbar horizontale si nécessaire */
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent; /* Aucune couleur pour les thumbs */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Fond transparent */
+}
+
+.scroll-container {
+  scrollbar-width: none; /* Cache la barre de défilement dans Firefox */
+  -ms-overflow-style: none; /* Cache la barre de défilement dans Internet Explorer */
+  overflow-y: auto; /* Assurez le défilement vertical */
+}
 </style>
 
 

@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="echartPie"
-    style="width: 500%; height: 200px; margin-top: -20px; margin-left: -135px"
-  ></div>
+  <div ref="echartPie" style="width: 500%; height: 200px; margin-top: -20px; margin-left: -135px"></div>
 </template>
 
 <script>
@@ -13,40 +10,16 @@ export default {
   data() {
     return {
       pieChartOptions: {
-        tooltip: {
-          trigger: "item",
-        },
+        tooltip: {trigger: "item",},
         color: ["#58d67ed7", "#9bf560d3", "#b6e9f8"],
-        legend: {
-          orient: "vertical",
-          left: "67%",
-          top: "center",
-        },
-        grid: {
-          left: "30%",
-          right: "10%",
-          containLabel: true,
-        },
+        legend: {orient: "vertical", left: "67%", top: "center",},
+        grid: {left: "30%",right: "10%",containLabel: true,},
         series: [
-          {
-            name: "Répartition des utilisateurs",
-            type: "pie",
-            radius: ["30%", "49%"],
-            avoidLabelOverlap: false,
-            padAngle: 3,
-            itemStyle: {
-              borderRadius: 5,
-            },
-            label: {
-              show: false,
-              position: "center",
-            },
+          {name: "Répartition des utilisateurs",type: "pie",radius: ["30%", "49%"],avoidLabelOverlap: false,padAngle: 3,
+            itemStyle: {borderRadius: 5,},
+            label: {show: false,position: "center",},
             emphasis: {
-              label: {
-                show: true,
-                fontSize: "15",
-                fontWeight: "bold",
-              },
+              label: {show: true,fontSize: "15",fontWeight: "bold",},
             },
             labelLine: {
               show: false,

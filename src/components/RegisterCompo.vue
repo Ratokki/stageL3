@@ -44,11 +44,9 @@
         <v-text-field v-model="signupForm.password" placeholder="Mot de passe" color="success" density="comfortable"
           variant="outlined"
           rounded :type="showPass ? 'text' : 'password'" @click:append="reverse()" :append-inner-icon="showPass ? 'mdi-eye-off' : 'mdi-eye'" @input="checkFormValidity"></v-text-field>
-          <v-select placeholder="Rôle" :items="['Employé', 'Chef de projet', 'Partenaire']" v-model="signupForm.role" density="comfortable" rounded variant="outlined" required></v-select>
-          <v-radio-group v-model="signupForm.genre">
-        <v-radio label="Homme" value="Homme"></v-radio>
-        <v-radio label="Femme" value="Femme"></v-radio>
-      </v-radio-group>
+          <v-select label="Rôle" :items="['Employé', 'Chef de projet', 'Proposeur', 'DAF']" v-model="signupForm.role" density="comfortable" rounded variant="outlined" required></v-select>
+          
+      <v-select v-model="signupForm.genre" label="Genre" density="comfortable" rounded variant="outlined" :items="['Homme', 'Femme']" required></v-select>
         <v-btn type="submit" color="#1D9A48" style="width: 100%; color: white; border-radius: 30px; height: 45px; background: linear-gradient(90deg, #91e658ea, #45af65ef)" @click.prevent="signup" :loading="load">
           S'inscrire
         </v-btn>
@@ -141,7 +139,7 @@ export default {
     },
 
     seConnecter() {
-      this.$router.push('/login'); // Redirection vers la page de connexion
+      this.$router.push('/'); // Redirection vers la page de connexion
     }
   }
 };

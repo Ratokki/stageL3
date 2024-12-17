@@ -42,6 +42,88 @@
         </v-btn>
       </template>
     </v-snackbar> 
+             <!-- Confirmation Dialog for Accepter/Rejeter -->
+  <v-dialog v-model="confirmDialog" width="400">
+    <v-card>
+      <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;">
+        <v-icon left>mdi-alert-circle-outline</v-icon> 
+        <span style="margin-top: 10px;">Confirmation</span>
+      </v-card-title>
+
+      <v-card-text>
+        Êtes-vous sûr de vouloir {{ actionType }} ce projet ?
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <!-- Cancel Button -->
+        <v-btn 
+        variant="flat" 
+        rounded 
+        class="text-none" 
+        elevation="5" 
+        color="white" 
+        @click="confirmDialog = false"
+        style="margin-top: -15px; margin-right: 5px;"
+        >
+          Annuler
+        </v-btn>
+
+        <!-- Confirmation Button for Accepter/Rejeter -->
+        <v-btn
+        :width="100"
+          variant="flat"
+          rounded
+          class="text-none"
+          :color="actionType === 'accepter' ? 'green darken-1' : 'red'"
+          @click="confirmAction"
+          style="margin-top: -15px; margin-right: 8px;"
+        >
+          {{ actionType === 'accepter' ? 'Accepter' : 'Rejeter' }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- Modal pour Détails -->
+          <v-dialog v-model="dialogDetails" max-width="500px">
+  <v-card>
+    <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;"> 
+        <span style="margin-top: 10px;">Détails de projet</span>
+      </v-card-title>
+    <v-card-text>
+      <div v-if="selectedProject && selectedProject.length > 0">
+        <v-list>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-subtitle>Nom : {{ selectedProject[0].titre }}</v-list-item-subtitle>
+              <v-list-item-subtitle>Date de proposition : {{ selectedProject[0].date_proposition }}</v-list-item-subtitle>
+              <v-list-item-subtitle>Statut : {{ selectedProject[0].statut }}</v-list-item-subtitle>
+              <v-list-item-subtitle>Budget : {{ selectedProject[0].budget }} €</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+      <div v-else>
+        <v-alert type="error">Aucun détail disponible pour ce projet.</v-alert>
+      </div>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn 
+        variant="flat" 
+        rounded 
+        class="text-none" 
+        elevation="5" 
+        color="white" 
+        @click="dialogDetails = false"
+        style="margin-top: -15px; margin-right: 5px;"
+        >
+          Annuler
+        </v-btn>
+    </v-card-actions>
+    
+  </v-card>
+</v-dialog>
     
     <v-row align="center" style="margin-top: 10px">
                       <v-sheet
@@ -90,143 +172,68 @@
   :items="filteredItems"
   item-value="titre"
   items-per-page-text="Articles par page"
-  style="border-radius: 15px; margin-top: -20px"
+  class="scroll-container" style="background-color: white; border-radius: 15px; margin-top: -30px; max-height: 430px; overflow-y: auto;"
       >
-        <template v-slot:item.sigle="{ item }">
-          <span class="white--text" style="font-size: 15px">
-            {{ item.sigle }}
-          </span>
-        </template>
-
-        <template v-slot:item.statut="{ item }">
-          <v-chip
-            :color="getStatusColor1(item.statut)"
-            small
-            dark
-            class="justify-center"
-          >
-            {{ item.statut }}
-          </v-chip>
-        </template>
-
-        <template v-slot:item.date_proposition="{ item }">
-  <span>{{ item.date_proposition }}</span>
-</template>
-
-
-        <template v-slot:item.actions="{ item }">
-          
-          <v-btn
-          class="text-none"
-          :width="80"
-          :height="35"
-          style="font-size: 12px; color: green; "
-          elevation="0"
-          variant="outlined"           
-          @click="openConfirmDialog('accepter', item)"
-          >
-            Accepter
-          </v-btn>
-
-          <v-btn
-          class="text-none"
-          :width="80"
-          :height="35"
-          style="font-size: 12px; color: red; "
-          elevation="0"
-          variant="tonal"           
-          @click="openConfirmDialog('rejeter', item)"
-          >
-            Rejeter
-          </v-btn>
-
-          <v-btn
-            variant="text"
-            icon
-            @click="viewDetails(item.id_projet)"
-            style="margin-left: 5px"
-            dark
-          >
-            <img src="../../assets/eye.png" height="29px" />
-            <v-tooltip
-                          activator="parent"
-                          location="bottom"
-                          class="custom-tooltip"
-                        >
-                          Voir détails
-                        </v-tooltip>
-          </v-btn>
-
-          <!-- Confirmation Dialog for Accepter/Rejeter -->
-  <v-dialog v-model="confirmDialog" width="400">
-    <v-card>
-      <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;">
-        <v-icon left>mdi-alert-circle-outline</v-icon> 
-        <span style="margin-top: 10px;">Confirmation</span>
-      </v-card-title>
-
-      <v-card-text>
-        Êtes-vous sûr de vouloir {{ actionType }} ce projet ?
-      </v-card-text>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-
-        <!-- Cancel Button -->
-        <v-btn 
-        variant="flat" 
-        rounded 
-        class="text-none" 
-        elevation="5" 
-        color="white" 
-        @click="confirmDialog = false"
-        style="margin-top: -15px; margin-right: 5px;"
+        <template v-slot:item="{ item, index }">
+           <tr :class="{ 'highlight-row': item.statut === 'En attente' }">
+      <td>{{ item.titre }}</td>
+      <td>{{ item.sigle }}</td>
+      <td>
+        <v-chip
+          :color="getStatusColor1(item.statut)"
+          small
+          dark
+          class="justify-center"
         >
-          Annuler
-        </v-btn>
-
-        <!-- Confirmation Button for Accepter/Rejeter -->
+          {{ item.statut }}
+        </v-chip>
+      </td>
+      <td>{{ item.date_proposition }}</td>
+      <td>
         <v-btn
-        :width="100"
-          variant="flat"
-          rounded
           class="text-none"
-          :color="actionType === 'accepter' ? 'green darken-1' : 'red'"
-          @click="confirmAction"
-          style="margin-top: -15px; margin-right: 8px;"
+          :width="80"
+          :height="35"
+          style="font-size: 12px; color: green;"
+          elevation="0"
+          variant="outlined"
+          @click="openConfirmDialog('accepter', item)"
         >
-          {{ actionType === 'accepter' ? 'Accepter' : 'Rejeter' }}
+          Accepter
         </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-btn
+          class="text-none"
+          :width="80"
+          :height="35"
+          style="font-size: 12px; color: red;"
+          elevation="0"
+          variant="tonal"
+          @click="openConfirmDialog('rejeter', item)"
+        >
+          Rejeter
+        </v-btn>
+        <v-btn
+          variant="text"
+          icon
+          @click="viewDetails(item.id_projet)"
+          style="margin-left: 5px"
+          dark
+        >
+          <img src="../../assets/eye.png" height="29px" />
+          <v-tooltip
+            activator="parent"
+            location="bottom"
+            class="custom-tooltip"
+          >
+            Voir détails
+          </v-tooltip>
+        </v-btn>
+      </td>
+    </tr>
+ 
+ 
 
-          <!-- Modal pour Détails -->
-          <v-dialog v-model="dialogDetails" max-width="500px">
-  <v-card>
-    <v-card-title>Détails de projet</v-card-title>
-    <v-card-text>
-      <div v-if="selectedProject && selectedProject.length > 0">
-        <v-list>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>Nom : {{ selectedProject[0].titre }}</v-list-item-title>
-              <v-list-item-subtitle>Date de proposition : {{ selectedProject[0].date_proposition }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Statut : {{ selectedProject[0].statut }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Budget : {{ selectedProject[0].budget }} €</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </div>
-      <div v-else>
-        <v-alert type="error">Aucun détail disponible pour ce projet.</v-alert>
-      </div>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn text @click="dialogDetails = false">Fermer</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
+          
 
 <!-- Modal pour Éditer le Projet -->
 <v-dialog v-model="dialogEdit" max-width="500px">
@@ -335,7 +342,7 @@ export default {
         { title: "Sigle", key: "sigle", align: "start" },
         { title: "Statut", key: "statut", align: "start" },
         { title: "Date de proposition", key: "date_proposition", align: "center" },
-        { title: "Budget", key: "budget", align: "center" },
+    //    { title: "Budget", key: "budget", align: "center" },
         { title: "Action", key: "actions", align: "center" },
       ],
       newItem: {
@@ -508,6 +515,11 @@ async viewDetails(itemId) {
 </script>
 
 <style>
+
+.highlight-row {
+  background-color: #F4F5FA; /* Couleur de fond jaune clair */
+}
+
   .fade-blur {
   transition: opacity 0.5s ease, filter 0.5s ease;
   opacity: 0;
@@ -533,5 +545,26 @@ async viewDetails(itemId) {
   text-align: center; /* Centre le texte */
   margin: 0 auto; /* Centre le snackbar horizontalement */
 }
+
+/* Cibler les barres de défilement pour les sections spécifiques */
+::-webkit-scrollbar {
+  width: 0px; /* Cache la scrollbar verticale */
+  height: 0px; /* Cache la scrollbar horizontale si nécessaire */
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent; /* Aucune couleur pour les thumbs */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Fond transparent */
+}
+
+.scroll-container {
+  scrollbar-width: none; /* Cache la barre de défilement dans Firefox */
+  -ms-overflow-style: none; /* Cache la barre de défilement dans Internet Explorer */
+  overflow-y: auto; /* Assurez le défilement vertical */
+}
+
 
 </style>

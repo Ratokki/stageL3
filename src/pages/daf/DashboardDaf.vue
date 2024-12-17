@@ -1,33 +1,24 @@
 <template>
   <v-app :style="{ backgroundColor: '#F4F5FA', fontFamily: 'ABeeZee' }">
-    <AdminNav />
+    <DafNav />
     <v-main>
-      <v-container fluid class="px-6 mt-n2" >
+      <v-container fluid class="px-6 mt-n2">
         <v-col cols="12">
           <v-card
             height="58"
             elevation="0"
             style="background-color: white; border-radius: 10px"
           >
-            <v-container style="margin-top: -6px;">
-  <v-row align="center">
-    <v-col cols="8">
-      <p class="monTitle">Tableau de bord</p>
-    </v-col>
-
-    <v-col cols="4" class="text-right">
-      <div style="display: flex; align-items: center; justify-content: flex-end;">
-        <v-btn elevation="0" rounded style="margin-right:25px;">
-      <v-badge color="error" content="2" dot>
-        <v-icon size="25">mdi-bell-outline</v-icon>
-      </v-badge>
-    </v-btn>
-        <AdminAvatar />
-      </div>
-    </v-col>
-  </v-row>
-</v-container>
-
+            <v-container style="margin-top: -6px">
+              <v-row align="center">
+                <v-col cols="10">
+                  <p class="monTitle">Tableau de bord</p>
+                </v-col>
+                <v-col cols="2" class="text-right">
+                  <DafAvatar />
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card>
 
           <!-- Project Cards -->
@@ -484,8 +475,8 @@
 </template>
 
 <script>
-import AdminNav from "../../components/admin/AdminNav.vue";
-import AdminAvatar from "../../components/admin/AdminAvatar.vue";
+import DafNav from "../../components/daf/DafNav.vue";
+import DafAvatar from "../../components/daf/DafAvatar.vue";
 import UserStatCompo from "../../components/admin/UserStatCompo.vue";
 
 import StatAvanc from '../../components/admin/statAvanc.vue';
@@ -493,8 +484,8 @@ import axios from 'axios';
 
 export default {
   components: {
-    AdminNav,
-    AdminAvatar,
+    DafNav,
+    DafAvatar,
     UserStatCompo,
     StatAvanc,
   },

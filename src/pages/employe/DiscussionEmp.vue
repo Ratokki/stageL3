@@ -29,7 +29,7 @@
                     <!-- Section Chef de projet -->
                     <v-list-item 
                       v-if="chefProjet"
-                      rounded="xl" 
+                      
                       @click="initiateChat(chefProjet)" 
                       class="cursor-pointer">
                       <v-row align="center">
@@ -58,7 +58,7 @@
                     <v-list-item 
                       v-for="user in coequipiers" 
                       :key="user.idUtilisateur" 
-                      rounded="xl" 
+                      
                       @click="initiateChat(user)" 
                       class="cursor-pointer">
                       <v-row align="center">
@@ -80,6 +80,7 @@
                         <v-col cols="auto" v-if="unreadMessages[user.idUtilisateur] > 0">
                           <v-badge color="red" :content="unreadMessages[user.idUtilisateur]" />
                         </v-col>
+                        
                       </v-row>
                     </v-list-item>
                   </v-list>
@@ -99,37 +100,55 @@
     </v-container>
                   <v-card ref="messageCard" elevation="3" class="message-card" outlined style="border-radius: 20px; margin-top: 15px; max-height: 400px; overflow-y: auto;">
                     <v-card-text>
-                      <div
-                        v-for="message in messages"
-                        :key="message.date_envoi"
-                        :class="message.type_message"
-                        class="message-container mb-2"
-                      >
-                        <v-avatar
-                          v-if="message.type_message === 'recepteur'"
-                          size="30"
-                          class="mr-2"
-                        >
-                          <v-img :src="getImageUrl(selectedUser.profile)" />
-                        </v-avatar>
-                        <div :class="['message-content', message.type_message]">
-                          <p class="message-text">{{ message.message }}</p>
-                          <small class="message-date">{{ formatDate(message.date_envoi) }}</small>
-                        </div>
-                      </div>
+                      <div v-for="message in messages" :key="message.date_envoi" :class="message.type_message" class="message-container mb-2">
+  <v-avatar v-if="message.type_message === 'recepteur'" size="30" class="mr-2">
+    <v-img :src="getImageUrl(selectedUser.profile)" />
+  </v-avatar>
+  <div :class="['message-content', message.type_message]">
+    <p class="message-text">{{ message.message }}</p>
+    <div v-if="message.file" class="file-attachment">
+      <a :href="`http://localhost:5000/uploads/${message.file}`" target="_blank">{{ message.file }}</a>
+    </div>
+    <small class="message-date">{{ formatDate(message.date_envoi) }}</small>
+  </div>
+</div>
                     </v-card-text>
                     <v-card-actions>
-                      <v-textarea
-                        v-model="newMessage"
-                        label="Écrire un message"
-                        auto-grow
-                        rows="1"
-                        outlined
-                      ></v-textarea>
-                      <v-btn icon @click="sendMessage">
-                        <v-icon>mdi-send</v-icon>
-                      </v-btn>
-                    </v-card-actions>
+  <v-row align="center" justify="space-between">
+    <!-- Champ de texte pour les messages -->
+    <v-col cols="8">
+      <v-textarea
+        v-model="newMessage"
+        label="Écrire un message"
+        auto-grow
+        rows="1"
+        outlined
+      ></v-textarea>
+    </v-col>
+
+    <!-- Bouton pour joindre des fichiers -->
+    <v-col cols="auto">
+      <v-btn icon @click="$refs.fileInput.click()">
+        <v-icon>mdi-paperclip</v-icon>
+      </v-btn>
+      <input
+        ref="fileInput"
+        type="file"
+        accept="image/*,application/pdf"
+        style="display: none"
+        @change="handleFileUpload"
+      />
+    </v-col>
+
+    <!-- Bouton pour envoyer -->
+    <v-col cols="auto">
+      <v-btn icon @click="sendMessage">
+        <v-icon>mdi-send</v-icon>
+      </v-btn>
+    </v-col>
+  </v-row>
+</v-card-actions>
+
                   </v-card>
                 </v-col>
               </v-row>
@@ -160,14 +179,22 @@ export default {
       userId: JSON.parse(localStorage.getItem('userData')).idUtilisateur,
       socket: null, // Nouvelle propriété pour la connexion Socket.IO
       unreadMessages: {}, // Compteur pour messages non lus
+      attachedFile: null,
     };
   },
   methods: {
+    handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      this.attachedFile = file;
+    }
+  },
     formatDate(dateStr) {
       const date = new Date(dateStr);
       return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + 
         ' à ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     },
+    
     async fetchUsers() {
       try {
         const response = await axios.get('http://localhost:5000/admin/allUserDiscussion', {
@@ -178,8 +205,15 @@ export default {
 
         // Initialiser les messages non lus
         [this.chefProjet, ...this.coequipiers].forEach(user => {
-          this.unreadMessages[user.idUtilisateur] = 0;
-        });
+  if (user) {
+    this.unreadMessages[user.idUtilisateur] = 0;
+  }
+}); 
+console.log('Données des utilisateurs récupérées :', {
+  chefProjet: this.chefProjet,
+  coequipiers: this.coequipiers,
+});
+console.log('Messages non lus initialisés :', this.unreadMessages);      
       } catch (error) {
         console.error("Erreur lors de la récupération des utilisateurs :", error);
       }
@@ -193,10 +227,16 @@ export default {
       this.scrollToBottom(); // Défile vers le bas après la récupération des messages
     }
   },
+    
     initiateChat(user) {
       this.selectedUser = user;
       this.fetchMessages();
-      this.unreadMessages[user.idUtilisateur] = 0; // Réinitialiser les messages non lus
+
+      // Réinitialiser le compteur des messages non lus pour cet utilisateur
+      if (this.unreadMessages[user.idUtilisateur] > 0) {
+        this.unreadMessages[user.idUtilisateur] = 0;
+        this.notifyServerReadMessages(user.idUtilisateur); // Informer le serveur
+      }
     },
     async sendMessage() {
     if (this.newMessage.trim()) {
@@ -216,6 +256,63 @@ export default {
       this.scrollToBottom();
     }
   },
+  /*async sendMessage() {
+    if (this.newMessage.trim()) {
+      const formData = new FormData();
+      formData.append('id_envoyeur', this.userId);
+      formData.append('id_recepteur', this.selectedUser.idUtilisateur);
+      formData.append('message', this.newMessage);
+      formData.append('date_envoi', new Date().toISOString());
+      console.log(formData)
+      
+      try {
+        await axios.post('http://localhost:5000/discussion/sendMessage', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        socket.emit('messageSent', { message: this.newMessage, file: this.attachedFile });
+
+        // Ajout local du message
+        this.messages.push({
+          id_envoyeur: this.userId,
+          id_recepteur: this.selectedUser.idUtilisateur,
+          message: this.newMessage,
+          date_envoi: new Date().toISOString(),
+          type_message: 'envoyeur',
+          file: this.attachedFile ? this.attachedFile.name : null,
+        });
+
+        // Réinitialiser le message et le fichier
+        this.newMessage = '';
+        this.attachedFile = null;
+        this.$refs.fileInput.value = null;
+
+        this.scrollToBottom();
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du message :', error);
+      }
+    }
+  },
+  */
+ notifyServerReadMessages(receiverId) {
+      // Informer le serveur que les messages non lus ont été lus
+      socket.emit('messagesRead', {
+        id_envoyeur: this.userId,
+        id_recepteur: receiverId
+      });
+    },
+handleNewMessage(data) {
+      if (data.id_recepteur === this.userId) {
+        // Si un message arrive pour l'utilisateur actuel
+        if (!this.selectedUser || this.selectedUser.idUtilisateur !== data.id_envoyeur) {
+          // Si la discussion avec l'expéditeur n'est pas active, incrémenter le compteur
+          this.unreadMessages[data.id_envoyeur] = (this.unreadMessages[data.id_envoyeur] || 0) + 1;
+        } else {
+          // Si la discussion avec l'expéditeur est active, ajouter le message
+          this.messages.push(data);
+          this.scrollToBottom();
+        }
+      }
+    },
 
     getImageUrl(profile) {
       return profile ? `http://localhost:5000/${profile}` : '/images/default-profile.png';
@@ -228,42 +325,23 @@ export default {
         default: return "gray";
       }
     },
-    scrollToBottom() {
-    this.$nextTick(() => {
-      const card = this.$refs.messageCard; // Référence à la carte de messages
-      if (card) {
-        card.scrollTop = card.scrollHeight; // Défile vers le bas
-      }
-    });
-  },
+    
+  scrollToBottom() {
+      this.$nextTick(() => {
+        const messageCard = this.$refs.messageCard;
+        if (messageCard) {
+          messageCard.scrollTop = messageCard.scrollHeight;
+        }
+      });
+    },
    closeChat() {
     this.selectedUser = null; // Fermer la carte de discussion
   },
   },
   mounted() {
-  this.fetchUsers();
-  socket.on('newMessage', (message) => {
-    // Vérifier si le message existe déjà pour éviter les doublons
-    const isDuplicate = this.messages.some(msg => msg.date_envoi === message.date_envoi && msg.message === message.message);
-
-    if (!isDuplicate) {
-      message.type_message = message.id_envoyeur === this.userId ? 'envoyeur' : 'recepteur';
-      
-      if (message.id_envoyeur !== this.selectedUser?.idUtilisateur && message.id_recepteur === this.userId) {
-        this.unreadMessages[message.id_envoyeur] = (this.unreadMessages[message.id_envoyeur] || 0) + 1;
-      }
-
-      if (
-        (message.id_envoyeur === this.selectedUser?.idUtilisateur && message.id_recepteur === this.userId) ||
-        (message.id_envoyeur === this.userId && message.id_recepteur === this.selectedUser?.idUtilisateur)
-      ) {
-        this.messages.push(message);
-        this.scrollToBottom();
-      }
-    }
-  });
-}
-,
+    this.fetchUsers();
+    socket.on('newMessage', this.handleNewMessage);
+  },
   beforeDestroy() {
     if (this.socket) {
       this.socket.disconnect(); // Fermer la connexion lors de la destruction du composant
@@ -295,7 +373,8 @@ export default {
   color: rgb(228, 227, 227);
 }
 
-.recepteur .message-content {
+.r
+ecepteur .message-content {
   background-color: rgb(238, 237, 237);
   margin-right: auto;
   border-radius: 0 20px 20px 20px;

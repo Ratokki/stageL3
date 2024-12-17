@@ -20,25 +20,29 @@
     </v-menu>
 
     <!-- Modal Mon compte -->
-    <v-dialog v-model="modalVisibleCompte" max-width="500px">
+    <v-dialog v-model="modalVisibleCompte" max-width="400px">
       <v-card>
-        <v-card-title>Mon compte</v-card-title>
+        <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 10px;">Mon compte</span>
+        </v-card-title>
         <v-card-text>
           <v-avatar size="64" class="mb-3">
             <v-img :src="getImageUrl(userProfileImage)" height="64" cover></v-img>
           </v-avatar>
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title>Nom : {{ nom }}</v-list-item-title>
-              <v-list-item-title>Prénom : {{ prenom }}</v-list-item-title>
-              <v-list-item-subtitle>Email : {{ email }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Rôle : {{ role }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Genre : {{ genre }}</v-list-item-subtitle> <!-- Ajout du genre -->
+              <v-list-item-subtitle><strong>Nom :</strong> {{ nom }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Prénom :</strong> {{ prenom }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Email :</strong> {{ email }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Genre :</strong> {{ genre }}</v-list-item-subtitle> <!-- Ajout du genre -->
+              <v-list-item-subtitle><strong>Rôle :</strong> {{ role }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-card-text>
         <v-card-actions>
-          <v-btn text @click="fermerModalCompte">Fermer</v-btn>
+          <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="fermerModalCompte" style="margin-top: -20px; margin-right: 10px;">
+            Fermer
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -46,14 +50,15 @@
     <!-- Modal Modifier le profil -->
     <v-dialog v-model="modalVisibleEdit" max-width="500px">
       <v-card>
-        <v-card-title>
-          <span class="headline">Modifier votre profil</span>
+        <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 10px;">Modifier votre profile</span>
         </v-card-title>
         <v-card-text>
-          <v-form ref="form" v-model="formValid">
-            <v-container>
-              <v-avatar size="120" class="mb-3 mx-auto">
-                <v-img :src="imagePreview || getImageUrl(userProfileImage)" height="120" cover></v-img>
+          
+          <v-form ref="form" style="margin-top: 5px;" v-model="formValid">
+            <v-container style="margin-top: -15px;">
+              <v-avatar size="100" class="mb-3 mx-auto">
+                <v-img :src="imagePreview || getImageUrl(userProfileImage)" height="100" cover></v-img>
               </v-avatar>
               <div class="circle-icon-container">
                 <v-file-input
@@ -66,17 +71,39 @@
                 ></v-file-input>
               </div>
             </v-container>
-            <v-text-field v-model="nom" label="Nom" required></v-text-field>
-            <v-text-field v-model="prenom" label="Prénom" required></v-text-field>
-            <v-text-field v-model="email" label="Email" required type="email"></v-text-field>
-            <v-select v-model="role" label="Rôle" :items="['Employé', 'Chef de projet', 'Partenaire']" required></v-select>
-            <v-select v-model="genre" label="Genre" :items="['Homme', 'Femme', 'Autre']" required></v-select> <!-- Ajout du genre -->
-          </v-form>
+              <v-row no-gutters>
+                <v-col cols="12" sm="12">
+                  <v-text-field class="mx-2" label="Nom" v-model="nom" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>               
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12" sm="12">
+                  <v-text-field class="mx-2" label="Prénom" v-model="prenom" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12" sm="12">
+                  <v-text-field class="mx-2" label="Email" v-model="email" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>              
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12" sm="6">
+                <v-select class="mx-2" v-model="role" label="Rôle" density="comfortable" rounded variant="outlined" :items="['Chef de projet']" required></v-select>
+                </v-col>
+                <v-col cols="12" sm="6">
+               <v-select class="mx-2" v-model="genre" label="Genre" density="comfortable" rounded variant="outlined" :items="['Homme', 'Femme']" required></v-select>
+                </v-col>
+              </v-row>
+            </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="handleSubmit">Modifier</v-btn>
-          <v-btn color="grey" text @click="fermerModalEdit">Fermer</v-btn>
+          <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="fermerModalEdit" style="margin-top: -40px; margin-right: -20px;">
+            Fermer
+          </v-btn>
+          <v-btn :width="auto" variant="flat" rounded class="text-none mx-6" color="green" @click="handleSubmit" style="margin-top: -40px; margin-right: 8px;">
+            Modifier
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -204,7 +231,7 @@ export default {
     deconnexion() {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('userData');
-      this.$router.push('/login');
+      this.$router.push('/');
     }
   }
 };

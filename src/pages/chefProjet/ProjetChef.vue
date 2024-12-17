@@ -25,31 +25,29 @@
     <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout" top right color="success">
       {{ snackbar.message }}
     </v-snackbar>
+
+
+
           <v-card elevation="0" style="background-color: white; border-radius: 10px">
             <v-container style="margin-top: -6px">
-              <span style="margin-left: 15px; font-size: 20px;">Mon projet</span>
+              <span style="margin-left: 15px; font-size: 20px;">Tous mes projets</span>
               <v-row style="margin-top: -5px;">
                 <template v-if="Array.isArray(projects) && projects.length">
                   <v-container>
                     <v-col v-for="project in projects" :key="project.id_projet" cols="12" md="12">
-                      <v-card class="mx-auto">
+                      <v-card class="mx-auto" elevation="4" style="border-radius: 20px;">
                         <v-col class="auto">
   <v-row justify="space-between" align="center">
     <!-- Partie gauche : Informations du projet -->
     <v-col>
-      <v-card-item>
-        <div>
-          <div class="text-overline mb-1">
-           Titre : {{ project.titre }} ({{ project.sigle }})
-          </div>
-          
-        </div>
-      </v-card-item>
+      <v-list-item class="px-5" height="70">   
+      <template v-slot:title><v-btn  icon="mdi-format-list-checks" size="x-small" style="margin-top: -10px;"></v-btn>  <span style="font-size:18px;">{{ project.titre }} {{ project.sigle }}</span></template>
+    </v-list-item>
     </v-col>
    
     
     <!-- Partie droite : Statut du projet -->
-    <v-col class="text-right" style="margin-top: -35px;">
+    <v-col class="text-right" style="margin-top: -15px;">
       <v-card-item>
         
         <v-chip
@@ -71,7 +69,7 @@
         sm="4"
       >
         <v-sheet class="ma-2 pa-2" style="background-color: #F4F5FA; border-radius: 15px;">
-          Debuté le : {{ project.date_debut_avancement }}
+          Debuté le : {{ project.formattedDate }}
         </v-sheet>
       </v-col>
       <v-col
@@ -95,98 +93,73 @@
 <v-container style="margin-top: -8px">
 
                         <v-card-actions style="margin-top: -20px;">
-                          <v-btn color="orange" class="text-none" rounded="xl" @click="loadTasks(project)" variant="text">
+                          <v-btn color="primary" class="text-none" rounded="xl" @click="loadTasks(project)" variant="text">
                             Voir tâche
                             <v-icon left>
                               {{ project.showTasks ? "mdi-chevron-up" : "mdi-chevron-down" }}
                             </v-icon>
                           </v-btn>
                           <v-spacer></v-spacer>
-                          <v-btn color="green" class="text-none" rounded="xl" variant="outlined" @click="openNewTaskModal(project)">
+                          <v-btn color="green" class="text-none" rounded="xl" variant="flat" @click="openNewTaskModal(project)">
                             Nouveau tâche
                           </v-btn>
 
-                          
+
 
                            <!-- Modal pour la création d'une nouvelle tâche -->
-  <v-dialog v-model="project.showNewTaskModal" max-width="600px">
+  <v-dialog v-model="project.showNewTaskModal" max-width="500px">
   <v-card>
-    <v-card-title>Ajouter une nouvelle tâche</v-card-title>
+    <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 10px;">Ajouter un tâche</span>
+        </v-card-title>
     <v-card-text>
       <v-container>
         <v-row>
           <v-col cols="12">
-            <v-text-field label="Titre" v-model="newTask.titre" required></v-text-field>
+            <v-text-field 
+              label="Titre"
+              v-model="newTask.titre"
+              required
+              density="comfortable"
+              rounded
+              variant="outlined"
+              ></v-text-field>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="6" style="margin-top: -7px;">
             <v-text-field
               label="Statut"
               v-model="newTask.statut"
               readonly
+              density="comfortable"
+              rounded
+              variant="outlined"
             ></v-text-field>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="6" style="margin-top: -7px;">
             <v-text-field
               label="Date de création"
               :value="currentDate"
               readonly
+              density="comfortable"
+              rounded
+              variant="outlined"
             ></v-text-field>
           </v-col>
-          <v-col cols="12">
-            <v-btn color="primary" @click="createTask(project)">Ajouter la tâche</v-btn>
-            <v-btn text @click="project.showNewTaskModal = false">Annuler</v-btn>
-          </v-col>
+          
         </v-row>
       </v-container>
     </v-card-text>
+    <v-card-actions style="margin-top:-10px;">
+ 
+            <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="project.showNewTaskModal = false" style="margin-top: -40px; margin-right: -20px;">
+            Fermer
+          </v-btn>
+          <v-btn :width="90" variant="flat" rounded class="text-none mx-6" color="green" @click="createTask(project)" style="margin-top: -40px; margin-right: 8px;">
+            Ajouter
+          </v-btn>
+          </v-card-actions>
   </v-card>
 </v-dialog>
-
-                        </v-card-actions>
-
-                        </v-container>
-                        <!-- Liste des tâches par statut -->
-                          <v-expand-transition :height="auto">
-                            <v-container v-if="project.showTasks && project.tasks">
-                              <v-row>
-                                <!-- Tâches en cours -->
-                               <v-col cols="12" class="mt-4">
-  <span style="margin-left: 15px; font-size: 20px;">Tâches en cours</span>
-  <template v-if="getTasksByStatus(project.tasks, 'En cours').length">
-    <v-carousel height="200" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
-      <v-carousel-item
-        v-for="(chunk, index) in chunkTasks(getTasksByStatus(project.tasks, 'En cours'))"
-        :key="index"
-      >
-        <v-sheet height="100%">
-          <v-row>
-            <v-col v-for="task in chunk" :key="task.id_tache" cols="4">
-              <v-card elevation="4" style="border-radius: 20px;">
-                <v-card-item>
-                  <div>
-                    <div class="text-overline mb-1">Titre : {{ task.titre }}</div>
-                    <div class="text-caption">Date limite : {{ task.date_limite }}</div>
-                    <div class="text-caption">Priorité : {{ task.priorite }}</div>
-                    <div class="text-caption">Pourcentage d'avancement : {{ task.pourcentage_avancement }}%</div><br>
-                    
-
-                   
-                  </div>
-                </v-card-item>
-                <v-card-actions>
-      <div style="margin-top: -8px; margin-left: 8px;">
-    <v-avatar size="38">
-      <template v-if="task.profile_responsable">
-        <v-img :src="task.profile_responsable" height="38" cover></v-img>
-      </template>
-      <template v-else>
-    <v-icon color="red" size="24">mdi-help-circle</v-icon>
-  </template>
-    </v-avatar>
-  </div>
-                  <v-spacer></v-spacer>
-                  <v-btn color="orange" rounded="xl" variant="outlined" @click="openAssignTaskDialog(task, project)">Reassigner</v-btn>
-
                   <!-- Modal pour l'assignation de tâche -->
   <v-dialog v-model="showAssignDialog" max-width="600px">
     <v-card>
@@ -207,7 +180,7 @@
             <v-col cols="12">
               <v-menu>
         <template v-slot:activator="{ props }">
-            <v-text-field density="compact" variant="outlined" v-bind="props" label="Date"
+            <v-text-field density="compact" variant="outlined" v-bind="props" label="Date pour debuter ce tâche"
                           v-model="formattedDate" readonly></v-text-field>
         </template>
         <v-date-picker v-on:update:model-value="changeRoleDate" hide-actions @click.native.stop>
@@ -240,11 +213,80 @@
         </v-container>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" @click="assignTask">Confirmer</v-btn>
-        <v-btn text @click="closeAssignDialog">Annuler</v-btn>
+
+        <v-btn 
+        variant="flat" 
+        rounded 
+        class="text-none" 
+        elevation="5" 
+        color="white" 
+        @click="closeAssignDialog"
+        style="margin-top: -15px; margin-right: 5px;"
+        >
+          Annuler
+        </v-btn>
+
+        <!-- Confirmation Button for Accepter/Rejeter -->
+        <v-btn
+        :width="100"
+          variant="flat"
+          rounded
+          class="text-none"
+          color="green"
+          @click="assignTask"
+          style="margin-top: -15px; margin-right: 8px;"
+        >
+          Assigner
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+                        </v-card-actions>
+
+                        </v-container>
+                        <!-- Liste des tâches par statut -->
+                          <v-expand-transition :height="auto">
+                            <v-container v-if="project.showTasks && project.tasks">
+                              <v-row>
+                                <!-- Tâches en cours -->
+                               <v-col cols="12" class="mt-2">
+  <span style="margin-left: 15px; font-size: 20px;">Tâches en cours</span>
+  <template v-if="getTasksByStatus(project.tasks, 'En cours').length">
+    <v-carousel :height="auto" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
+      <v-carousel-item
+        v-for="(chunk, index) in chunkTasks(getTasksByStatus(project.tasks, 'En cours'))"
+        :key="index"
+      >
+        <v-sheet height="100%">
+          <v-row>
+            <v-col v-for="task in chunk" :key="task.id_tache" cols="4">
+              <v-card elevation="4" style="border-radius: 20px;" :height="auto">
+                <v-card-item>
+                  <div>
+                    <div class="text-overline mb-1">Titre : {{ task.titre }}</div>
+                    <div class="text-caption">Date limite : {{ task.date_limite }}</div>
+                    <div class="text-caption">Priorité : {{ task.priorite }}</div>
+                    <div class="text-caption">Pourcentage d'avancement : {{ task.pourcentage_avancement }}%</div><br>
+                    
+
+                   
+                  </div>
+                </v-card-item>
+                <v-card-actions>
+      <div style="margin-top: -8px; margin-left: 8px;">
+    <v-avatar size="38">
+      <template v-if="task.profile_responsable">
+        <v-img :src="task.profile_responsable" height="38" cover></v-img>
+      </template>
+      <template v-else>
+    <v-icon color="red" size="24">mdi-help-circle</v-icon>
+  </template>
+    </v-avatar>
+  </div>
+                  <v-spacer></v-spacer>
+                  <v-btn color="orange" rounded="xl" variant="outlined" @click="openAssignTaskDialog(task, project)">Reassigner</v-btn>
+
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -261,10 +303,10 @@
 </v-col>
 
                                 <!-- Tâches à faire -->
-<v-col cols="12" class="mt-4">
+<v-col cols="12" class="mt-2">
   <span style="margin-left: 15px; font-size: 20px;">Tâches à faire</span>
   <template v-if="getTasksByStatus(project.tasks, 'À faire').length">
-    <v-carousel height="200" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
+    <v-carousel height="auto" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
       <v-carousel-item
         v-for="(chunk, index) in chunkTasks(getTasksByStatus(project.tasks, 'À faire'))"
         :key="index"
@@ -272,7 +314,7 @@
         <v-sheet height="100%">
           <v-row>
             <v-col v-for="task in chunk" :key="task.id_tache" cols="4">
-              <v-card elevation="4" style="border-radius: 20px;">
+              <v-card elevation="4" style="border-radius: 20px;" :height="auto">
                 <v-card-item>
                   <div>
                     <div class="text-overline mb-1">Titre : {{ task.titre }}</div>
@@ -377,7 +419,7 @@
                                 <v-col cols="12" class="mt-4">
   <span style="margin-left: 15px; font-size: 20px;">Tâches terminé</span>
   <template v-if="getTasksByStatus(project.tasks, 'Terminé').length">
-    <v-carousel height="200" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
+    <v-carousel :height="auto" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
       <v-carousel-item
         v-for="(chunk, index) in chunkTasks(getTasksByStatus(project.tasks, 'Terminé'))"
         :key="index"
@@ -385,7 +427,7 @@
         <v-sheet height="100%">
           <v-row>
             <v-col v-for="task in chunk" :key="task.id_tache" cols="4">
-              <v-card elevation="4" style="border-radius: 20px;">
+              <v-card elevation="4" style="border-radius: 20px;" :height="auto">
                 <v-card-item>
                   <div>
                     <div class="text-overline mb-1">Titre : {{ task.titre }}</div>
@@ -488,7 +530,7 @@
                                 <v-col cols="12" class="mt-4">
   <span style="margin-left: 15px; font-size: 20px;">Nouveau tâche</span>
   <template v-if="getTasksByStatus(project.tasks, 'En création').length">
-    <v-carousel height="200" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
+    <v-carousel :height="auto" progress="#F4F5FA" hide-delimiters style="margin-top: 20px;">
       <v-carousel-item
         v-for="(chunk, index) in chunkTasks(getTasksByStatus(project.tasks, 'En création'))"
         :key="index"
@@ -496,7 +538,7 @@
         <v-sheet height="100%">
           <v-row>
             <v-col v-for="task in chunk" :key="task.id_tache" cols="4">
-              <v-card elevation="4" style="border-radius: 20px;">
+              <v-card elevation="4" style="border-radius: 20px;" :height="auto">
                 <v-card-item>
                   <div>
                     <div class="text-overline mb-1">Titre : {{ task.titre }}</div>
@@ -724,24 +766,32 @@ assignTask() {
     getProjectsByUser() {
   axios.get("http://localhost:5000/admin/projectChef", { params: { userId: this.userId } })
     .then((response) => {
-      this.projects = response.data.map(project => {
-        // Conversion de date_debut_avancement au format clair
-        const dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-        const formattedDate = project.date_debut_avancement
-          ? new Date(project.date_debut_avancement).toLocaleDateString('fr-FR', dateOptions)
-          : 'Non spécifié';
-        
-        return {
-          ...project,
-          date_debut_avancement: formattedDate, // Assignation de la date formatée
-          showTasks: false, // Initialisation de showTasks
-        };
-      });
+      this.projects = response.data
+        .map(project => {
+          // Formater la date de début d'avancement au format souhaité
+          const formattedDate = project.date_debut_avancement
+            ? new Date(project.date_debut_avancement).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              })
+            : 'Non spécifié';
+          
+          return {
+            ...project,
+            date_debut_avancement: new Date(project.date_debut_avancement), // Conserve l'objet Date pour le tri
+            formattedDate, // Utiliser `formattedDate` pour l'affichage de la date formatée
+            showTasks: false // Initialiser showTasks
+          };
+        })
+        .sort((a, b) => b.date_debut_avancement - a.date_debut_avancement); // Tri par date de début (du plus récent au plus ancien)
     })
     .catch((error) => {
       console.error("Erreur lors de la récupération des projets :", error);
     });
 },
+
+
  loadTasks(project) {
   if (!project || typeof project.showTasks === 'undefined') {
     console.error("Le projet n'est pas défini ou showTasks est indéfini.");

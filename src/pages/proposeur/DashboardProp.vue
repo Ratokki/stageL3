@@ -16,12 +16,7 @@
                   <p>Dashboard</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                  <ProposeurAvatar/>
                 </v-col>
               </v-row>
             </v-container>
@@ -51,9 +46,11 @@
 
 <script>
 import ProposeurNav from "../../components/proposeur/ProposeurNav.vue";
+import ProposeurAvatar from "../../components/proposeur/ProposeurAvatar.vue";
 export default {
     components: {
     ProposeurNav,
+    ProposeurAvatar,
   },
   data() {
     return {

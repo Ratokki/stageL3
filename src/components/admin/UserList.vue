@@ -1,67 +1,73 @@
 <template>
   <v-col cols="12">
-    <v-sheet elevation="0" style="background-color: white; border-radius: 10px; margin-top: -8px;">
-      <v-container>
-        <v-row>
+    <v-sheet elevation="0" class="containerScroll" style="background-color: white; border-radius: 10px; margin-top: 15px; height: 430px; overflow-y: auto;">
+      <v-container class="pa-0">
+        <v-row no-gutters>
           <v-col v-for="item in filteredItems" :key="item.id" cols="12">
-            <v-card :height="90" elevation="0" style="border-radius: 10px; background-color: #F4F5FA;">
-              <v-container>
-                <v-row>
-                  <v-col cols="7" class="d-flex align-center">
-                    <v-row>
-                      <v-col cols="2" style="margin-left: 12px; margin-top: 5px;">
-                        <v-avatar size="40">
-                          <v-img :src="getImageUrl(item.profile)" height="40" cover></v-img>
-                        </v-avatar>
-                      </v-col>
-                      <v-col cols="8" style="margin-left: -25px; margin-top: 5px;">
-                        <div class="text-left">
-                          <span>{{ item.nom }} {{ item.prenom }}</span>
-                          <br />
-                          <v-card-subtitle style="margin-left: -15px;">{{ item.email }}</v-card-subtitle>
-                        </div>
-                      </v-col>
-                    </v-row>
-                  </v-col>
+            <v-card
+  :height="90"
+  elevation="0"
+  style="border-radius: 10px; margin-bottom: -15px;"
+  :style="{ backgroundColor: item.statusSwitch === null ? '#F4F5FA' : 'white' }"
+>
+  <v-container class="pa-0">
+    <v-row>
+      <v-col cols="7" class="d-flex align-center">
+        <v-row no-gutters>
+          <v-col cols="2" style="margin-left: 12px; margin-top: 5px;">
+            <v-avatar size="40">
+              <v-img :src="getImageUrl(item.profile)" height="40" cover></v-img>
+            </v-avatar>
+          </v-col>
+          <v-col cols="8" style="margin-left: -25px; margin-top: 5px;">
+            <div class="text-left">
+              <span>{{ item.nom }} {{ item.prenom }}</span>
+              <br />
+              <v-card-subtitle style="margin-left: -15px;">{{ item.email }}</v-card-subtitle>
+            </div>
+          </v-col>
+        </v-row>
+      </v-col>
 
-                  <v-col cols="5" style="margin-top: -18px;">
-                    <v-card-actions class="d-flex justify-end">
-                      <div class="custom-switch-container">
-                        <v-switch
-                          v-model="item.statusSwitch"
-                          hide-details
-                          color="success"
-                          class="custom-switch"
-                          @change="openConfirmationDialog(item)"
-                        >
-                          <template v-slot:prepend>
-                            <v-icon class="error" :class="{'active': item.statusSwitch === false}">
-                              mdi-close-circle
-                            </v-icon>
-                          </template>
-                          <template v-slot:append>
-                            <v-icon class="success" :class="{'active': item.statusSwitch === true}">
-                              mdi-check-circle
-                            </v-icon>
-                          </template>
-                        </v-switch>
-                        <v-chip v-if="item.statusSwitch !== null" :color="item.statusSwitch ? 'success' : 'red'" class="ml-2" text-color="white" variant="outlined" size="small" style="width: 65px; display: flex; justify-content: center; align-items: center;">
-                          {{ item.statusSwitch ? 'Accepté' : 'Refusé' }}
-                        </v-chip>
-                        <v-chip v-if="item.statusSwitch === null" color="grey" class="ml-2" text-color="white" variant="outlined" size="small">
-                          Choisir
-                        </v-chip>
-                      </div>
-                    </v-card-actions>
-                  </v-col>
-                </v-row>
-                <v-row align="center" style="margin-top: -35px;">
-                  <v-col class="text-right">
-                    <v-card-subtitle>Crée le: {{ formatDate(item.createdAt) }}</v-card-subtitle>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
+      <v-col cols="5" style="margin-top: -18px;">
+        <v-card-actions class="d-flex justify-end">
+          <div class="custom-switch-container">
+            <v-switch
+              v-model="item.statusSwitch"
+              hide-details
+              color="success"
+              class="custom-switch"
+              @change="openConfirmationDialog(item)"
+            >
+              <template v-slot:prepend>
+                <v-icon class="error" :class="{'active': item.statusSwitch === false}">
+                  mdi-close-circle
+                </v-icon>
+              </template>
+              <template v-slot:append>
+                <v-icon class="success" :class="{'active': item.statusSwitch === true}">
+                  mdi-check-circle
+                </v-icon>
+              </template>
+            </v-switch>
+            <v-chip v-if="item.statusSwitch !== null" :color="item.statusSwitch ? 'success' : 'red'" class="ml-2" text-color="white" variant="outlined" size="small" style="width: 65px; display: flex; justify-content: center; align-items: center;">
+              {{ item.statusSwitch ? 'Accepté' : 'Refusé' }}
+            </v-chip>
+            <v-chip v-if="item.statusSwitch === null" color="primary" class="ml-2" text-color="white" variant="outlined" size="small">
+              Choisir
+            </v-chip>
+          </div>
+        </v-card-actions>
+      </v-col>
+    </v-row>
+    <v-row align="center" style="margin-top: -35px;">
+      <v-col class="text-right">
+        <v-card-subtitle>Crée le: {{ formatDate(item.createdAt) }}</v-card-subtitle>
+      </v-col>
+    </v-row>
+  </v-container>
+</v-card>
+
           </v-col>
         </v-row>
       </v-container>
@@ -164,7 +170,9 @@ export default {
           role: user.role,
           createdAt: user.createdAt, // Ajouter la date de création
           status: user.status,
-          statusSwitch: user.status === 'Accepté' // Switch basé sur le statut de l'utilisateur
+           statusSwitch: user.status === 'Accepté' ? true 
+                         : user.status === 'Rejeté' ? false 
+                         : null // Définir statusSwitch sur null pour "En attente"ur
         }));
         this.items1.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } catch (error) {
@@ -272,4 +280,18 @@ export default {
 .ml-2 {
   margin-left: 8px; /* Espacement entre le switch et le chip */
 }
+
+.containerScroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.containerScroll::-webkit-scrollbar-thumb {
+  background-color: #dbe0f7; /* Couleur de la barre */
+  border-radius: 10px;
+}
+
+.containerScroll::-webkit-scrollbar-thumb:hover {
+  background-color: #aaaaaa; /* Couleur de la barre lors du survol */
+}
+
 </style>

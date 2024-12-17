@@ -81,7 +81,7 @@
 
         <v-row>
           <v-col cols="12">
-            <v-data-table v-model:search="search" :headers="monHeader" :items="filteredItems" item-value="profile" style="border-radius: 15px; margin-top: -20px"
+            <v-data-table v-model:search="search" :headers="monHeader" :items="filteredItems" item-value="profile" class="scroll-container" style="background-color: white; border-radius: 15px; margin-top: -30px; max-height: 430px; overflow-y: auto;"
              :locale="{
     pageText: '{0}-{1} de {2}',
     itemsPerPageText: 'Éléments par page',
@@ -131,21 +131,35 @@
         <!-- Modal pour Détails -->
         <v-dialog v-model="dialogDetails" max-width="500px">
           <v-card>
-            <v-card-title>Détails de l'utilisateur</v-card-title>
+            <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;">
+      <span style="margin-top: 10px;">Détails de l'utilisateur</span>
+    </v-card-title>
             <v-card-text>
               <v-avatar size="64" class="mb-3">
   <v-img :src="getImageUrl(selectedUser.profile)" />
 </v-avatar>
               <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-title>Nom : {{ selectedUser.nom }}</v-list-item-title>
-                  <v-list-item-title>Prénom : {{ selectedUser.prenom }}</v-list-item-title>
+                  <v-list-item-subtitle>Nom : {{ selectedUser.nom }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>Prénom : {{ selectedUser.prenom }}</v-list-item-subtitle>
                   <v-list-item-subtitle>Email : {{ selectedUser.email }}</v-list-item-subtitle>
                   <v-list-item-subtitle>Rôle : {{ selectedUser.role }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-card-text>
-            <v-card-actions><v-btn text @click="dialogDetails = false">Fermer</v-btn></v-card-actions>
+            <v-card-actions>
+            <v-btn 
+        variant="flat" 
+        rounded 
+        class="text-none" 
+        elevation="5" 
+        color="white" 
+        @click="dialogDetails = false"
+        style="margin-top: -15px; margin-right: 5px;"
+      >
+        Annuler
+      </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
 
@@ -438,7 +452,7 @@ export default {
           return "blue";
         case "Employé":
           return "green";
-        case "Partenaire":
+        case "DAF":
           return "orange";
         default:
           return "red";
@@ -459,5 +473,24 @@ export default {
   margin-left: 50px;
 }
 
+/* Cibler les barres de défilement pour les sections spécifiques */
+::-webkit-scrollbar {
+  width: 0px; /* Cache la scrollbar verticale */
+  height: 0px; /* Cache la scrollbar horizontale si nécessaire */
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent; /* Aucune couleur pour les thumbs */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Fond transparent */
+}
+
+.scroll-container {
+  scrollbar-width: none; /* Cache la barre de défilement dans Firefox */
+  -ms-overflow-style: none; /* Cache la barre de défilement dans Internet Explorer */
+  overflow-y: auto; /* Assurez le défilement vertical */
+}
 
 </style>

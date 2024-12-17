@@ -1,21 +1,9 @@
 <template>
   <div>
-    <v-snackbar
-      v-model="snackbar"
-      shaped
-      top
-      :color="snackbarColor"
-      :timeout="timeout"
-    >
+    <v-snackbar v-model="snackbar" shaped top :color="snackbarColor" :timeout="timeout">
       {{ snackbarMessage }}
       <template v-slot:action="{ attrs }">
-        <v-btn
-          color="blue"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-          append-icon="home"
-        >
+        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false" append-icon="home">
         </v-btn>
       </template>
     </v-snackbar>
@@ -59,11 +47,13 @@
         <v-btn
           type="submit"
           elevation="0"
-          :style="isFormInvalid ? 'background-color: grey;' : 'background: linear-gradient(90deg, #91e658ea, #45af65ef);'"
+          :style="isFormInvalid ? 'background-color: white;' : 'background: linear-gradient(90deg, #91e658ea, #45af65ef);'"
           class="login-btn"
           @click.prevent="login"
           :loading="load"
           :disabled="isFormInvalid"
+          :height="45"
+          rounded
         >
           Connexion
         </v-btn>
@@ -136,7 +126,12 @@ async login() {
       this.$router.push('/chefProjet/Projet');
     } else if (user.role === 'Employé') {
       this.$router.push('/employe/Tache');
-    } else {
+    }else if (user.role === 'DAF') {
+      this.$router.push('/daf/DashboardDaf');
+    }else if (user.role === 'Proposeur') {
+      this.$router.push('/proposeur/Dashboard');
+    }
+     else {
       this.snackbarMessage = "Rôle d'utilisateur non reconnu.";
       this.snackbarColor = "warning";
       this.snackbar = true;

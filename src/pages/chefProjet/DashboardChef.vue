@@ -24,11 +24,11 @@
         </v-col>
         
         <!-- Contenu de dashboard -->
-        <v-col cols="12">
+        <v-col cols="12" style="">
           <v-card
             height="58"
             elevation="0"
-            style="background-color: white; border-radius: 10px"
+            style="background-color: white; border-radius: 10px; margin-top: -5px" 
           >
             <v-container style="margin-top: -6px">
               <v-row align="center">

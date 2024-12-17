@@ -33,34 +33,39 @@
               <!-- Liste des utilisateurs -->
               <v-row no-gutters>
               <v-col cols="12" sm="4" class="pr-4">
-                <span style="font-size: 15px; margin-left: 10px"
-                  >Utilisateurs</span
-                >
+                <span style="font-size: 15px; margin-left: 10px">Utilisateurs</span>
                  <v-list style="margin-top: 10px;">
-    <v-list-item rounded="xl" v-for="user in users" :key="user.idUtilisateur" @click="initiateChat(user)" class="cursor-pointer">
-  <v-row align="center">
-    <v-col cols="2" class="ma-1">
-      <v-avatar size="45"><v-img :src="getImageUrl(user.profile)"></v-img></v-avatar>
-    </v-col>
-    <v-col cols="auto" class="ma-4">
-      <v-row>
-        <span style="font-size: 15px; margin-left: 5px"
-                  >{{ user.nom }} {{ user.prenom }}</span
-                >
-        
-        </v-row>
-      <v-row>
-        <v-chip :color="getStatusColor(user.role)" size="small">{{ user.role }}</v-chip>
-      </v-row>
-    </v-col>
-    <!-- Badge pour les messages non lus -->
-    <v-col cols="2" v-if="unreadMessages[user.idUtilisateur] > 0">
-      <v-badge color="red" :content="unreadMessages[user.idUtilisateur]" />
-    </v-col>
-  </v-row>
-</v-list-item>
+  <v-list-item 
 
-  </v-list>
+    v-for="user in users" 
+    :key="user.idUtilisateur" 
+    @click="initiateChat(user)" 
+    class="cursor-pointer"
+  >
+    <v-row align="center">
+      <v-col cols="2" class="ma-1">
+        <v-avatar size="45">
+          <v-img :src="getImageUrl(user.profile)" />
+        </v-avatar>
+      </v-col>
+      <v-col cols="auto" class="ma-4">
+        <v-row>
+          <span style="font-size: 15px; margin-left: 5px">
+            {{ user.nom }} {{ user.prenom }}
+          </span>
+        </v-row>
+        <v-row>
+          <v-chip :color="getStatusColor(user.role)" size="small">{{ user.role }}</v-chip>
+        </v-row>
+      </v-col>
+      <!-- Badge pour les messages non lus -->
+      <v-col cols="2" v-if="unreadMessages[user.idUtilisateur] > 0">
+        <v-badge color="red" :content="unreadMessages[user.idUtilisateur]" />
+      </v-col>
+    </v-row>
+  </v-list-item>
+</v-list>
+
               </v-col>
 
               <!-- Carte de message -->
@@ -90,7 +95,6 @@
       {{ message.message }}
     </p>
     <small class="message-date">{{ formatDate(message.date_envoi) }}</small>
-
     <!-- Afficher le fichier joint si présent -->
     <a v-if="message.fichier_joint" :href="`http://localhost:5000/uploads/${message.fichier_joint}`" target="_blank">
       📎 {{ message.fichier_joint }}
@@ -158,10 +162,19 @@ export default {
   },
   methods: {
     attachFile(file) {
-    this.selectedFile = file; // Stocker le fichier sélectionné
-    // Ajouter le nom du fichier dans le textarea
-    this.newMessage += ` [Fichier joint: ${file.name}] `;
-  },
+  if (file.size > 5 * 1024 * 1024) { // Limite de 5 Mo
+    alert("Le fichier est trop volumineux.");
+    return;
+  }
+  const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf']; // Exemple
+  if (!allowedTypes.includes(file.type)) {
+    alert("Type de fichier non pris en charge.");
+    return;
+  }
+  this.selectedFile = file;
+  this.newMessage += ` [Fichier joint: ${file.name}] `;
+}
+,
     formatDate(dateStr) {
       const date = new Date(dateStr);
       return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + 
@@ -194,7 +207,29 @@ export default {
       this.fetchMessages();
       this.unreadMessages[user.idUtilisateur] = 0;
     },
-     async sendMessage() {
+    async sendMessage() {
+    if (this.newMessage.trim()) {
+      const messageData = {
+        id_envoyeur: this.userId,
+        id_recepteur: this.selectedUser.idUtilisateur,
+        message: this.newMessage,
+        date_envoi: new Date().toISOString(),
+        type_message: 'envoyeur'
+      };
+      await axios.post('http://localhost:5000/discussion/sendMessage', messageData);
+      socket.emit('messageSent', messageData);
+      
+      // Ajoutez le message localement pour éviter un doublon
+      this.messages.push(messageData);
+      this.newMessage = '';
+
+    }
+  },
+ /*    async sendMessage() {
+      if (!this.newMessage.trim() && !this.selectedFile) {
+  alert("Veuillez saisir un message ou joindre un fichier.");
+  return;
+}
     if ((this.newMessage.trim() || this.selectedFile) && this.selectedUser) {
       const formData = new FormData();
       formData.append('id_envoyeur', this.userId);
@@ -236,7 +271,7 @@ export default {
         console.error("Erreur lors de l'envoi du message :", error);
       }
     }
-  },
+  },*/
     getImageUrl(profile) {
       return profile ? `http://localhost:5000/${profile}` : '/images/default-profile.png';
     },
@@ -244,7 +279,8 @@ export default {
       switch (role) {
         case "Chef de projet": return "blue";
         case "Employé": return "green";
-        case "Partenaire": return "orange";
+        case 'DAF':
+      return 'orange';
         default: return "gray";
       }
     },
@@ -254,34 +290,11 @@ export default {
   },
 mounted() {
   this.fetchUsers();
-
-  // Écouter les nouveaux messages
-  socket.on('newMessage', (message) => {
-    console.log("Message reçu :", message);
-
-    // Déterminer dynamiquement le type de message
-    message.type_message = message.id_envoyeur === this.userId ? 'envoyeur' : 'recepteur';
-
-    // Vérifier si le message concerne l'utilisateur sélectionné
-    if (message.id_recepteur === this.userId && message.id_envoyeur === this.selectedUser?.idUtilisateur) {
-      // Éviter d'ajouter deux fois le même message
-      if (!this.messages.find(msg => msg.date_envoi === message.date_envoi)) {
-        this.messages.push(message);
-      }
-    } else if (message.id_recepteur === this.userId) {
-      // Augmenter le compteur de messages non lus pour les autres utilisateurs
-      if (!this.unreadMessages[message.id_envoyeur]) {
-        this.unreadMessages[message.id_envoyeur] = 0;
-      }
-      this.unreadMessages[message.id_envoyeur]++;
-    }
-  });
+socket.on('newMessage', this.handleNewMessage);
 },
 
   beforeDestroy() {
-    if (this.socket) {
-      this.socket.disconnect(); // Fermer la connexion lorsque le composant est détruit
-    }
+    socket.off('newMessage', this.handleNewMessage);
   }
 };
 </script>

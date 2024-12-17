@@ -88,7 +88,7 @@
               </v-row>
               <v-row no-gutters>
                 <v-col cols="12" sm="6">
-                <v-select class="mx-2" v-model="role" label="Rôle" density="comfortable" rounded variant="outlined" :items="['Admin']" required></v-select>
+                <v-select class="mx-2" v-model="role" label="Rôle" density="comfortable" rounded variant="outlined" :items="['DAF']" required></v-select>
                 </v-col>
                 <v-col cols="12" sm="6">
                <v-select class="mx-2" v-model="genre" label="Genre" density="comfortable" rounded variant="outlined" :items="['Homme', 'Femme']" required></v-select>

@@ -1,6 +1,6 @@
 <template>
   <v-app :style="{ backgroundColor: '#F4F5FA', fontFamily: 'ABeeZee' }">
-    <ProposeurNav/>
+    <DafNav />
     <v-main>
       <v-container fluid class="px-6 mt-n2">
         <!-- pour la toolbar -->
@@ -13,10 +13,10 @@
             <v-container style="margin-top: -6px">
               <v-row align="center">
                 <v-col cols="10">
-                  <p>Page de Notification</p>
+                  <p>Budget</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <ProposeurAvatar/>
+                  <DafAvatar/>
                 </v-col>
               </v-row>
             </v-container>
@@ -45,13 +45,13 @@
 </template>
 
 <script>
-import ProposeurNav from "../../components/proposeur/ProposeurNav.vue";
-import ProposeurAvatar from "../../components/proposeur/ProposeurAvatar.vue";
+import DafNav from "../../components/daf/DafNav.vue";
+import DafAvatar from "../../components/daf/DafAvatar.vue";
 export default {
     components: {
-    ProposeurNav,
-    ProposeurAvatar
-    },
+    DafNav,
+    DafAvatar
+  },
   data() {
     return {
     };

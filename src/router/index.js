@@ -7,11 +7,7 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { routes } from 'vue-router/auto-routes';
-/*import Utilisateur from '@/pages/Utilisateur.vue'; 
-import GestionProjet from '@/pages/GestionProjet.vue'; 
-import GestionTache from '@/pages/GestionTache.vue'; 
-import Notification from '@/pages/Notification.vue'; 
-import Budget from '@/pages/Budget.vue';*/ 
+
 import Login from '@/pages/Login.vue'; 
 import Register from '@/pages/Register.vue'; 
 import LandingPage from '@/pages/LandingPage.vue';
@@ -36,9 +32,12 @@ import DashboardProp from '@/pages/proposeur/DashboardProp.vue';
 import ProjetProp from '@/pages/proposeur/ProjetProp.vue';
 import NotificationProp from '@/pages/proposeur/NotificationProp.vue';
 
+import DashboardDaf from '@/pages/daf/DashboardDaf.vue';
+import BudgetDaf from '@/pages/daf/BudgetDaf.vue';
+import DiscussionDaf from '@/pages/daf/DiscussionDaf.vue';
 
 routes.push({
-  path: '/login', 
+  path: '/', 
   name: 'LoginVue', 
   component: Login, 
 });
@@ -49,35 +48,6 @@ routes.push({
   component: Register, 
 });
 
-/*routes.push({
-  path: '/utilisateur', 
-  name: 'utilisateur', 
-  component: Utilisateur, 
-});
-
-routes.push({
-  path: '/projet',
-  name: 'gestionProjet',
-  component: GestionProjet,
-});
-
-routes.push({
-  path: '/tache',
-  name: 'gestionTache',
-  component: GestionTache,
-});
-
-routes.push({
-  path: '/notification',
-  name: 'notification',
-  component: Notification,
-});
-
-routes.push({
-  path: '/budget',
-  name: 'budget',
-  component: Budget,
-});*/
 
 routes.push({
   path: '/landingPage',
@@ -123,6 +93,26 @@ routes.push({
   component: Budget,
 });
 
+
+
+//Pour la daf
+routes.push({
+  path: '/daf/DashboardDaf',
+  name: 'dafDashboard',
+  component: DashboardDaf,
+});
+
+routes.push({
+  path: '/daf/DiscussionDaf',
+  name: 'dafDiscussion',
+  component: DiscussionDaf,
+});
+
+routes.push({
+  path: '/daf/BudgetDaf',
+  name: 'dafBudget',
+  component: BudgetDaf,
+});
 
 
 //Pour le chef de projet

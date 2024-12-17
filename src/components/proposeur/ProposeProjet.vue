@@ -17,6 +17,16 @@
       <b>{{ textSuccessDel }}</b>
       <template></template>
     </v-snackbar>
+
+    <v-snackbar
+    v-model="snackbar.show"
+    :color="snackbar.color"
+    timeout="3000"
+    top
+  >
+    {{ snackbar.message }}
+  </v-snackbar>
+
     <v-row align="center" style="margin-top: 10px">
                       <v-sheet
                         class="d-flex justify-space-between align-center pa-4"
@@ -52,21 +62,7 @@
                           width="300px"
                         ></v-text-field>
                       </div>
-                      <div style="margin-left: 18px">
-                        <v-autocomplete
-                          color="success"
-                          class="mx-auto"
-                          density="comfortable"
-                          rounded
-                          chips
-                          clearable
-                          label="Trier par"
-                          :items="['Date', 'Statut', 'Nom']"
-                          variant="underlined"
-                          width="195px"
-                          style="margin-left: -40px; max-width: 250px"
-                        ></v-autocomplete>
-                      </div>
+                      
                       <v-spacer></v-spacer>
 
                       <v-btn
@@ -79,28 +75,153 @@
           Proposer
         </v-btn>
 <!-- Modal pour Ajouter -->
-      <v-dialog v-model="dialogAdd" max-width="600px">
+      <v-dialog v-model="dialogAdd" max-width="550px">
         <v-card>
-          <v-card-title>
-            Proposer un nouveau projet
-          </v-card-title>
+          <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 10px;">Proposer un nouveau projet</span>
+        </v-card-title>
           <v-card-text>
-            <v-form ref="form">
-              <v-text-field label="Titre" v-model="newItem.titre" required></v-text-field>
-              <v-text-field label="Sigle" v-model="newItem.sigle" required></v-text-field>
-              <v-text-field label="Description" v-model="newItem.description" required></v-text-field>
-              <v-text-field label="Budget" v-model="newItem.budget" required type="number"></v-text-field>
-              <v-textarea label="Raison de proposition" v-model="newItem.raison_proposition" required></v-textarea>
-              <v-text-field v-model="newItem.lieu" label="Lieu (Latitude, Longitude)" readonly></v-text-field>
-              <div id="map" style="height: 300px"></div>
+            <v-form ref="form" style="margin-top: 5px;">
+              <v-row no-gutters>
+                <v-col cols="12" sm="8">
+                  <v-text-field class="mx-2" label="Titre" v-model="newItem.titre" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field class="mx-2" label="Sigle" v-model="newItem.sigle" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12" sm="8">
+                  <v-select class="mx-2" label="choisissez un lieu" :items="['Antananarivo', 'Antsiranana', 'Fianarantsoa', 'Mahajanga' ,'Toamasina','Toliary']" v-model="newItem.lieu" density="comfortable" rounded variant="outlined" required></v-select>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field class="mx-2" label="Budget" v-model="newItem.budget" density="comfortable" rounded variant="outlined" required type="number"></v-text-field>
+                </v-col>
+              </v-row>
+                  <v-textarea class="mx-2" label="Description" row-height="20" rows="3" auto-grow v-model="newItem.description" density="comfortable" rounded variant="outlined" required></v-textarea>
+              <v-textarea class="mx-2" label="Raison de proposition" row-height="20" rows="3" auto-grow v-model="newItem.raison_proposition" density="comfortable" rounded variant="outlined" required></v-textarea>                           
             </v-form>
           </v-card-text>
           <v-card-actions>
-            <v-btn @click="addItem" color="primary">Ajouter</v-btn>
-            <v-btn @click="closeModal" color="secondary">Fermer</v-btn>
+            
+            <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="closeModal" style="margin-top: -40px; margin-right: -20px;">
+            Fermer
+          </v-btn>
+          <v-btn :width="90" variant="flat" rounded class="text-none mx-6" color="green" @click="addItem" style="margin-top: -40px; margin-right: 8px;">
+            Ajouter
+          </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <!-- modal edit -->
+          <v-dialog v-model="dialogDetails" max-width="500px"> 
+  <v-card>
+    <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 5px;">Details de projet</span>
+        </v-card-title>
+    <v-card-text>
+      <div v-if="selectedProject && selectedProject.length > 0" style="margin-top: -10px;">
+        <v-list>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-subtitle>
+      <strong>Nom :</strong> {{ selectedProject[0].titre }} 
+      
+    </v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Sigle :</strong> {{ selectedProject[0].sigle }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Description :</strong> {{ selectedProject[0].description }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Lieu :</strong> {{ selectedProject[0].lieu }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Budget :</strong> {{ selectedProject[0].budget }} €</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Raison de proposition :</strong> {{ selectedProject[0].raison_proposition }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Type de projet :</strong> {{ selectedProject[0].type_projet }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Date de proposition :</strong> {{ formatDate(selectedProject[0].date_proposition) }}</v-list-item-subtitle>
+              <v-list-item-subtitle><strong>Statut :</strong> {{ selectedProject[0].statut }}</v-list-item-subtitle>
+              <v-list-item-subtitle>
+                <strong>Date d'acceptation :</strong> 
+                {{ selectedProject[0].date_acceptation ? formatDate(selectedProject[0].date_acceptation) : "Ce projet n'est pas encore accepté." }}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle>
+                <strong>Date de refus :</strong> 
+                {{ selectedProject[0].date_refus ? formatDate(selectedProject[0].date_refus) : "Ce projet n'est pas encore rejeté." }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+      <div v-else>
+        <v-alert type="error">Aucun détail disponible pour ce projet.</v-alert>
+      </div>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="dialogDetails = false" style="margin-top: -15px; margin-right: 5px;">
+            Fermer
+          </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+<!-- Modal d'édition -->
+    <v-dialog v-model="dialogEdit" max-width="550px">
+      <v-card>
+        <v-card-title class="mx-4 mt-4" style="font-size: 22px;">
+          <span style="margin-top: 10px;">Modifier le projet</span>
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" style="margin-top: 5px;">
+              <v-row no-gutters>
+                <v-col cols="12" sm="8">
+                  <v-text-field class="mx-2" label="Titre" v-model="editedProject.titre" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field class="mx-2" label="Sigle" v-model="editedProject.sigle" density="comfortable" rounded variant="outlined" required></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12" sm="8">
+                  <v-select class="mx-2" label="choisissez un lieu" :items="['Antananarivo', 'Antsiranana', 'Fianarantsoa', 'Mahajanga' ,'Toamasina','Toliary']" v-model="editedProject.lieu" density="comfortable" rounded variant="outlined" required></v-select>
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field class="mx-2" label="Budget" v-model="editedProject.budget" density="comfortable" rounded variant="outlined" required type="number"></v-text-field>
+                </v-col>
+              </v-row>
+                  <v-textarea class="mx-2" label="Description" row-height="20" rows="3" auto-grow v-model="editedProject.description" density="comfortable" rounded variant="outlined" required></v-textarea>
+              <v-textarea class="mx-2" label="Raison de proposition" row-height="20" rows="3" auto-grow v-model="editedProject.raison_proposition" density="comfortable" rounded variant="outlined" required></v-textarea>                           
+            </v-form>
+        </v-card-text>
+        <v-card-actions>
+          
+          <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="dialogEdit = false" style="margin-top: -40px; margin-right: -20px;">
+            Fermer
+          </v-btn>
+          <v-btn :width="auto" variant="flat" rounded class="text-none mx-6" color="green" @click="updateProject()" style="margin-top: -40px; margin-right: 8px;">
+            Mettre à jour
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+     <!-- Dialog de confirmation -->
+    <v-dialog v-model="dialogDelete" width="400">
+      <v-card>
+        <v-card-title class="headline" style="margin-top: 5px; margin-right: -5px;">
+          <v-icon left>mdi-check-circle-outline</v-icon>
+          <span style="margin-top: 10px;">Confirmation</span>
+        </v-card-title>
+        <v-card-text>
+          Êtes-vous sûr de vouloir supprimer ce projet ?
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="flat" rounded class="text-none" elevation="5" color="white" @click="dialogDelete = false" style="margin-top: -15px; margin-right: 5px;">
+            Annuler
+          </v-btn>
+          <v-btn :width="110" variant="flat" rounded class="text-none" color="green" @click="confirmDelete" :loading="load" style="margin-top: -15px; margin-right: 8px;">
+            Supprimer
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
                       <!-- Modal pour Ajouter -->
                       <v-dialog v-model="dialog" max-width="500px">
@@ -203,100 +324,7 @@
                         </v-tooltip>
           </v-btn>
 
-          <!-- modal edit -->
-          <v-dialog v-model="dialogDetails" max-width="500px"> 
-  <v-card>
-    <v-card-title>Détails de projet</v-card-title>
-    <v-card-text>
-      <div v-if="selectedProject && selectedProject.length > 0">
-        <v-list>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>
-      Nom : {{ selectedProject[0].titre }} 
-      <v-badge v-if="isNewProject(selectedProject[0].date_proposition)" color="green" content="Nouveau" overlap>
-        <template v-slot:badge>
-          <v-icon small>mdi-star</v-icon>
-        </template>
-      </v-badge>
-    </v-list-item-title>
-              <v-list-item-subtitle>Sigle : {{ selectedProject[0].sigle }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Description : {{ selectedProject[0].description }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Lieu : {{ selectedProject[0].lieu }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Latitude : {{ selectedProject[0].latitude }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Longitude : {{ selectedProject[0].longitude }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Budget : {{ selectedProject[0].budget }} €</v-list-item-subtitle>
-              <v-list-item-subtitle>Raison de proposition : {{ selectedProject[0].raison_proposition }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Type de projet : {{ selectedProject[0].type_projet }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Date de proposition : {{ formatDate(selectedProject[0].date_proposition) }}</v-list-item-subtitle>
-              <v-list-item-subtitle>Statut : {{ selectedProject[0].statut }}</v-list-item-subtitle>
-              <v-list-item-subtitle>
-                Date d'acceptation : 
-                {{ selectedProject[0].date_acceptation ? formatDate(selectedProject[0].date_acceptation) : "Ce projet n'est pas encore accepté." }}
-              </v-list-item-subtitle>
-              <v-list-item-subtitle>
-                Date de refus : 
-                {{ selectedProject[0].date_refus ? formatDate(selectedProject[0].date_refus) : "Ce projet n'est pas encore rejeté." }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </div>
-      <div v-else>
-        <v-alert type="error">Aucun détail disponible pour ce projet.</v-alert>
-      </div>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn text @click="dialogDetails = false">Fermer</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
-
-
-
-
-<!-- Modal d'édition -->
-    <v-dialog v-model="dialogEdit" max-width="600px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Modifier le Projet</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field v-model="editedProject.titre" label="Titre"></v-text-field>
-            <v-text-field v-model="editedProject.sigle" label="Sigle"></v-text-field>
-            <v-textarea v-model="editedProject.description" label="Description"></v-textarea>
-            <v-text-field v-model="editedProject.budget" label="Budget" type="number"></v-text-field>
-            <v-text-field v-model="editedProject.raison_proposition" label="Raison de proposition"></v-text-field>
-            <v-text-field v-model="editedProject.lieu" label="Lieu" readonly></v-text-field>
-            <!-- <div id="map" style="height: 400px;"></div> -->
-            <!-- Ajoutez ici d'autres champs si nécessaire -->
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="green darken-1" text @click="updateProject()">Mettre à jour</v-btn>
-          <v-btn color="grey" text @click="dialogEdit = false">Annuler</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-
-<!-- Boîte de dialogue de confirmation -->
-    <v-dialog v-model="dialogDelete" max-width="500px">
-      <v-card>
-        <v-card-title>Confirmer la suppression</v-card-title>
-        <v-card-text>
-          Êtes-vous sûr de vouloir supprimer ce projet ?
-        </v-card-text>
-        <v-card-actions>
-          <v-btn text @click="dialogDelete = false">Annuler</v-btn>
-          <v-btn text @click="confirmDelete" :loading="load">Supprimer</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-
-
+          
         </template>
       </v-data-table>
         </v-col>
@@ -311,6 +339,11 @@ export default {
     name: 'proposeUnProjet',
     data() {
       return {
+        snackbar: {
+      show: false,
+      message: '',
+      color: 'success', // Par défaut, succès
+    },
         dialogAdd: false,
         dialogDelete: false,
       projectToDelete: null,
@@ -353,9 +386,10 @@ export default {
         { title: "Sigle", key: "sigle", align: "start" },
         { title: "Statut", key: "statut", align: "start" },
         { title: "Date de proposition", key: "date_proposition", align: "center" },
-        { title: "Budget", key: "budget", align: "center" },
+       // { title: "Budget", key: "budget", align: "center" },
         { title: "Action", key: "actions", align: "center" },
       ],
+      filteredItems: [],
       newItem: {
         titre: "",
         sigle: "",
@@ -367,8 +401,6 @@ export default {
         raison_proposition: "",
         date_proposition: "",
       },
-      map: null,
-      marker: null,
       }
     },
     computed : {
@@ -389,6 +421,14 @@ export default {
 },
 methods: {
 
+  showSnackbar(message, color) {
+    this.snackbar = {
+      show: true,
+      message: message,
+      color: color,
+    };
+  },
+
   isNewProject(dateProposition) {
     const proposedDate = new Date(dateProposition);
     const now = new Date();
@@ -402,11 +442,9 @@ methods: {
       this.dialogDelete = true; // Ouvrir le dialogue
     },
 
- async fetchProjects() {
+async fetchProjects() {
   try {
     const response = await axios.get(`http://localhost:5000/admin/allProjects`);
-
-    // Mettez à jour les projets et formatez les dates
     this.projects = response.data.map(project => ({
       ...project,
       date_proposition: new Date(project.date_proposition).toLocaleDateString('fr-FR', {
@@ -414,18 +452,16 @@ methods: {
         month: 'long',
         year: 'numeric'
       }),
-      date_proposition_raw: new Date(project.date_proposition) // Ajoutez une version brute de la date pour le tri
+      date_proposition_raw: new Date(project.date_proposition) // Pour trier facilement
     }));
 
-    // Trier les projets par date de proposition (du plus récent au plus ancien)
+    // Trier les projets par date (la plus récente en premier)
     this.projects.sort((a, b) => b.date_proposition_raw - a.date_proposition_raw);
-
-    console.log("VOICI", this.projects);
   } catch (err) {
-    console.log(err);
+    console.error('Erreur lors du chargement des projets :', err);
   }
-}
-,
+},
+
 
 async viewDetails(itemId) {
   try {
@@ -452,7 +488,6 @@ async editProject(item) {
     ...item, 
     description: item.description || '', 
     raison_proposition: item.raison_proposition || '', 
-    lieu: item.lieu || '', 
   };
 
   // Récupérer les coordonnées du lieu
@@ -461,15 +496,6 @@ async editProject(item) {
       const coords = await this.getCoordinatesFromLocation(this.editedProject.lieu);
       this.editedProject.latitude = coords.latitude;
       this.editedProject.longitude = coords.longitude;
-
-      // Centrer la carte sur le lieu
-      if (this.marker) {
-        this.marker.setLatLng([coords.latitude, coords.longitude]);
-        this.map.setView([coords.latitude, coords.longitude], 13);
-      } else {
-        // Si le marqueur n'est pas initialisé, initiez la carte avec le lieu
-        this.initMap(coords.latitude, coords.longitude);
-      }
     } catch (error) {
       console.error('Erreur lors de la récupération des coordonnées :', error);
     }
@@ -541,150 +567,8 @@ async confirmDelete() {
 
     openModal() {
       this.dialogAdd = true;
-      this.$nextTick(() => {
-        this.initMap();
-      });
     },
-    initMap(lat = null, lng = null) {
-  if (navigator.geolocation) {
-
-    console.log("Initialisation de la carte...");
-  const mapContainer = document.getElementById("map");
-  if (!mapContainer) {
-    console.error("Le conteneur de la carte n'existe pas !");
-    return;
-  }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const defaultLat = lat || position.coords.latitude;
-        const defaultLng = lng || position.coords.longitude;
-
-        this.map = L.map("map").setView([defaultLat, defaultLng], 13);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: "© OpenStreetMap",
-        }).addTo(this.map);
-
-        this.marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(this.map);
-
-        // Écouter les événements de clic sur la carte
-        this.map.on("click", (e) => {
-          this.marker.setLatLng(e.latlng); // Déplacer le marqueur
-          this.newItem.location = { lat: e.latlng.lat, lng: e.latlng.lng }; // Mettre à jour les coordonnées
-          this.getLocationName(e.latlng.lat, e.latlng.lng); // Obtenir le nom du lieu
-        });
-
-        this.marker.on("dragend", () => {
-          const position = this.marker.getLatLng();
-          this.newItem.location = { lat: position.lat, lng: position.lng };
-          this.getLocationName(position.lat, position.lng); // Obtenir le nom du lieu
-        });
-      },
-      (error) => {
-        console.error("Erreur de géolocalisation :", error);
-        this.initDefaultMap();
-      }
-    );
-  } else {
-    this.initDefaultMap();
-  }
-},
-    initDefaultMap() {
-      this.map = L.map("map").setView([48.8566, 2.3522], 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap",
-      }).addTo(this.map);
-
-      this.marker = L.marker([48.8566, 2.3522], { draggable: true }).addTo(
-        this.map
-      );
-
-      this.map.on("click", (e) => {
-  this.marker.setLatLng(e.latlng); // Déplacer le marqueur
-  this.newItem.location = { lat: e.latlng.lat, lng: e.latlng.lng }; // Mettre à jour les coordonnées
-  this.getLocationName(e.latlng.lat, e.latlng.lng); // Obtenir le nom du lieu et mettre à jour newItem.lieu
-});
-
-
-      this.marker.on("dragend", () => {
-        const position = this.marker.getLatLng();
-        this.newItem.location = { lat: position.lat, lng: position.lng };
-        this.newItem.locationName = `(${position.lat}, ${position.lng})`; // Mettre à jour le champ lieu
-      });
-    },
- // Méthode pour mettre à jour le champ lieu avec les coordonnées
-  updateMapFromLocation() {
-    const location = this.newItem.lieu; // Le lieu sélectionné par l'utilisateur
-    console.log("Lieu sélectionné :", location);
-
-    // Vérifier si le lieu est vide
-    if (!location) {
-      alert('Veuillez entrer un lieu.');
-      return;
-    }
-
-    this.getCoordinatesFromLocation(location)
-      .then(coords => {
-        console.log("Coordonnées récupérées :", coords);
-
-        // Mise à jour des champs latitude, longitude et lieu avec les coordonnées
-        this.newItem.latitude = coords.latitude;
-        this.newItem.longitude = coords.longitude;
-        this.newItem.lieu = `Latitude: ${coords.latitude}, Longitude: ${coords.longitude}`; // Affiche dans le champ lieu
-
-        // Optionnel : Mise à jour de la carte avec la nouvelle position
-        this.marker.setLatLng([coords.latitude, coords.longitude]);
-        this.map.setView([coords.latitude, coords.longitude], 13);
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des coordonnées :", error);
-        alert('Impossible de récupérer les coordonnées pour ce lieu.');
-      });
-  },
-
-getCoordinatesFromLocation(location) {
-  return new Promise((resolve, reject) => {
-    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json`)
-      .then(response => {
-        if (!response.ok) {
-          reject('Erreur lors de la requête vers l\'API de géocodage.');
-          return;
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.length > 0) {
-          const { lat, lon } = data[0];
-          resolve({ latitude: lat, longitude: lon });
-        } else {
-          reject('Aucun résultat trouvé pour ce lieu.');
-        }
-      })
-      .catch(error => reject(error));
-  });
-},
-
-  
-getLocationName(lat, lng) {
-  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data && data.display_name) {
-        this.newItem.lieu = data.display_name;
-      } else {
-        this.newItem.lieu = `(${lat}, ${lng})`; // Fallback au cas où aucun nom de lieu n'est trouvé
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la récupération du nom du lieu :", error);
-      this.newItem.lieu = `(${lat}, ${lng})`;
-    });
-}
-,
-
+    
   formatDate(dateString) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
@@ -696,71 +580,57 @@ getLocationName(lat, lng) {
         sigle: "",
         description: "",
         lieu: "",
-        latitude: null,
-        longitude: null,
         budget: null,
         raison_proposition: "",
         date_proposition: "",
       };
-      if (this.marker) {
-        this.map.removeLayer(this.marker);
-        this.marker = null;
-      }
     },
-  async addItem() {
-  // Ajoutez la date actuelle
-  this.newItem.date_proposition = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+ async addItem() {
+  // Ajouter la date actuelle au champ `date_proposition`
+  this.newItem.date_proposition = new Date().toISOString();
 
-  console.log("Date de proposition:", this.newItem.date_proposition); 
+  // Vérification des champs obligatoires
+  if (
+    !this.newItem.titre ||
+    !this.newItem.sigle ||
+    !this.newItem.description ||
+    !this.newItem.budget ||
+    !this.newItem.raison_proposition ||
+    !this.newItem.lieu
+  ) {
+    this.showSnackbar('Tous les champs doivent être remplis.', 'error');
+    return;
+  }
 
   try {
-    const response = await fetch('http://localhost:5000/admin/projets', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        titre: this.newItem.titre,
-        sigle: this.newItem.sigle,
-        description: this.newItem.description,
-        budget: this.newItem.budget,
-        raison_proposition: this.newItem.raison_proposition,
-        date_proposition: this.newItem.date_proposition, // Utilisez la date actuelle
-        latitude: this.newItem.latitude,
-        longitude: this.newItem.longitude,
-        lieu: this.newItem.lieu,
+    // Envoyer le projet au backend
+    const response = await axios.post('http://localhost:5000/admin/projets', this.newItem);
+    const newProject = response.data; // Récupérer le projet ajouté
+
+    // Ajouter le projet directement à `projects`
+    this.projects.unshift({
+      ...newProject,
+      date_proposition: new Date(newProject.date_proposition).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
       }),
+      date_proposition_raw: new Date(newProject.date_proposition)
     });
 
-    if (response.ok) {
-      alert('Projet ajouté avec succès !');
-      this.resetForm();
-    } else {
-      alert('Une erreur est survenue lors de l\'ajout du projet.');
-    }
+    // Fermer le dialogue, réinitialiser le formulaire et afficher un message de succès
+    this.resetForm();
+    this.dialogAdd = false;
+    this.showSnackbar('Projet ajouté avec succès', 'success');
   } catch (error) {
-    console.error('Erreur lors de la requête :', error);
-    alert('Impossible de se connecter au serveur.');
+    console.error('Erreur lors de l’ajout du projet :', error);
+    this.showSnackbar('Erreur lors de l’ajout du projet', 'error');
   }
 },
 
+
 openEditModal() {
   this.dialogEdit = true; // Ouvrir le modal d'édition
-  this.$nextTick(() => {
-    if (!this.map) {
-      this.initMap(); // Initialiser la carte si elle n'est pas encore faite
-    } else if (this.editedProject.lieu) {
-      // Si le lieu est déjà défini, centrer la carte sur ce lieu
-      this.getCoordinatesFromLocation(this.editedProject.lieu)
-        .then(coords => {
-          this.marker.setLatLng([coords.latitude, coords.longitude]);
-          this.map.setView([coords.latitude, coords.longitude], 13);
-        })
-        .catch(error => {
-          console.error('Erreur lors de la récupération des coordonnées :', error);
-        });
-    }
-  });
 }
 ,
 

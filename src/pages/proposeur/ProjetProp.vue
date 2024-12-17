@@ -16,12 +16,7 @@
                   <p>Page de proposition</p>
                 </v-col>
                 <v-col cols="2" class="text-right">
-                  <v-avatar class="monAvatar" size="40">
-                    <img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
-                      alt="John"
-                    />
-                  </v-avatar>
+                  <ProposeurAvatar/>
                 </v-col>
               </v-row>
             </v-container>
@@ -52,11 +47,13 @@
 <script>
 import ProposeProjet from '../../components/proposeur/ProposeProjet.vue';
 import ProposeurNav from "../../components/proposeur/ProposeurNav.vue";
+import ProposeurAvatar from "../../components/proposeur/ProposeurAvatar.vue";
 
 export default {
     components: {
     ProposeurNav,
-    ProposeProjet
+    ProposeProjet,
+    ProposeurAvatar
   },
   data() {
     return {
